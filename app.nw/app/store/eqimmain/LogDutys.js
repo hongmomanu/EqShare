@@ -2,7 +2,7 @@ Ext.define('EqimPrj.store.eqimmain.LogDutys', {
     extend: 'Ext.data.Store',
     model: 'EqimPrj.model.eqimmain.LogDuty',
     autoLoad:true,
-    pageSize : 10,
+    pageSize : 20,
     proxy:{
         type: 'ajax',
         url: localStorage.serverurl+'log/getlogsystem',

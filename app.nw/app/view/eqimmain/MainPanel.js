@@ -114,7 +114,7 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                     split: true,
                     title:'发震信息',
                     minWidth: 200,
-                    width:200,
+                    width:250,
                     maxWidth: 300,
                     collapsible: true,
                     animCollapse: true,
