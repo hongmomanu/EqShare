@@ -475,8 +475,28 @@ Ext.define('EqimPrj.controller.EqimMain', {
         }
 
     },
-    sendWeb:function(data,type){
+    sendWebTets:function(data,type){
         console.log("wangye");
+        content=this.contentFormat(data,type);
+        var itemcontent='<?xml version="1.0" encoding="utf-8"?>'+
+            '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">'
+            +'<soap12:Body>'
+            +'<GetAllCatalogList xmlns="http://www.zjdz.gov.cn/">'
+             +'<username>ZJDZ</username>'
+             +'<password>L9dP2kaB</password>'
+             +'</GetAllCatalogList>'
+            +'</soap12:Body>'
+            +'</soap12:Envelope>';
+        //item.action="http://www.zjdz.gov.cn/GetAllCatalogList";
+        //item.action="http://www.zjdz.gov.cn/QuickInsert";
+        //item.url="http://www.zjdz.gov.cn/webservice/articleapi.asmx?op=GetAllCatalogList";
+        //item.url="http://www.zjdz.gov.cn/webservice/articleapi.asmx?op=QuickInsert";
+        //CommonFunc.ajaxSend(item, url, successFunc, failFunc, "post");
+        this.sendWebDetai(itemcontent);
+
+    },
+    sendWeb:function(data,type,cid){
+        console.log("wangye"+cid);
         content=this.contentFormat(data,type);
         var itemcontent='<?xml version="1.0" encoding="utf-8"?>'+
             '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">'
@@ -489,7 +509,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             +'<username>ZJDZ</username>'
             +'<password>L9dP2kaB</password>'
             +'<title>'+content+'</title>'
-            +'<cid>371</cid>'
+            +'<cid>'+cid+'</cid>'
             +'<summary></summary>'
             +'<content>'+content+'</content>'
             +'<preview></preview>'
@@ -556,7 +576,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
                      this.sendWeiBo(data,"自动测定");
                  }
                 if(filterdata[i].sendmethod.indexOf(2)>=0){
-                     this.sendWeb(data,"自动测定");
+                     this.sendWeb(data,"自动测定",371);
+                     this.sendWeb(data,"自动测定",372);
                  }
                 break;
 
@@ -620,7 +641,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     showmanualwin:function(btn){
         //alert(11);
-        testobj=this;
+        //testobj=this;
         if(!this.manualsendmsgwin)this.manualsendmsgwin= Ext.widget('manualsendmsgwin');
         this.manualsendmsgwin.show();
 
