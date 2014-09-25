@@ -1,6 +1,6 @@
 {
   "name": "EqEAR",
-  "description": "地震信息接收平台.",
+  "description": "地震信息分发平台.",
   "version": "0.1.0",
   "homepage": "https://github.com/hongmomanu/EqShare",
   "author": {
@@ -26,7 +26,7 @@
     "node": ">= 0.8.0"
   },
     "window": {
-        "title": "地震信息接收平台",
+        "title": "地震信息分发平台",
         "icon": "eqear.png",
         "toolbar": true,
         "position": "mouse"

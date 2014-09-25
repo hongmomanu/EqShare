@@ -92,6 +92,11 @@ Ext.define('EqimPrj.controller.EqimMain', {
             'mainpanel button[action=manualsend]':{
                 click: this.showmanualwin
             },
+            'loglistgrid':{
+
+                afterrender:this.loglistgridrendered
+
+            },
 
             'mainpanel image': {
                 voiceclick: this.voiceclick,
@@ -188,12 +193,16 @@ Ext.define('EqimPrj.controller.EqimMain', {
           if(!sendways||sendways.length==0){
               Ext.Msg.alert("提示信息","请至少选择一个发送方式!");
           }else{
+              var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"请等候..."});
+              myMask.show();
+              var callback=function(){
+                  myMask.hide();
+              };
               if(sendways.indexOf("0")>=0){
-                 me.sendTelDetai(form.getValues().content);
+                 me.sendTelDetai(form.getValues().content,callback);
               }if(sendways.indexOf("1")>=0){
-                  me.sendWeiBoDetai(form.getValues().content);
+                  me.sendWeiBoDetai(form.getValues().content,callback);
               }
-
               /*if(sendways.indexOf("2")>=0){
                   me.sendWebDetai(form.getValues().content);
               }*/
@@ -398,17 +407,19 @@ Ext.define('EqimPrj.controller.EqimMain', {
           (time.getMinutes()<10?"0"+time.getMinutes():time.getMinutes())+"分"+
           data.location
           +"附近（"+(data.lat>=0?"北纬":"南纬")+Math.abs(data.lat).toFixed(1)+"度，"
-          +(data.lon>=0?"东经":"西经")+Math.abs(data.lon).toFixed(1)+"度）发生"+data.M+"级左右地震，最终结果以正式速报为准。";
+          +(data.lon>=0?"东经":"西经")+Math.abs(data.lon).toFixed(1)+"度）发生"+data.M.toFixed(1)+"级左右地震，最终结果以正式速报为准。";
       return content;
     },
-    sendTelDetai:function(content){
+    sendTelDetai:function(content,callback){
         var url='log/sendtelmsg';
 
         var successFunc = function (form, action) {
+            if(callback)callback();
             Ext.Msg.alert("提示信息","短信发送成功");
         };
         var failFunc = function (form, action) {
-            Ext.Msg.alert("提示信息",action.result.msg);
+            if(callback)callback();
+            Ext.Msg.alert("提示信息","短信发送失败");
         };
 
         var item={};
@@ -443,14 +454,16 @@ Ext.define('EqimPrj.controller.EqimMain', {
         CommonFunc.ajaxSend(params, url, successFunc, failFunc, "post");
 
     },
-    sendWebDetai:function(content){
+    sendWebDetai:function(content,callback){
         if(localStorage.websiteurl){
             var url='log/sendsoap';
             var successFunc = function (form, action) {
+                if(callback)callback();
                 Ext.Msg.alert("提示信息","网页发布成功");
             };
             var failFunc = function (form, action) {
-                Ext.Msg.alert("提示信息","发布失败");
+                if(callback)callback();
+                Ext.Msg.alert("提示信息","网页发布失败");
             };
             var item={};
             item.url=localStorage.websiteurl;
@@ -495,14 +508,16 @@ Ext.define('EqimPrj.controller.EqimMain', {
         this.sendWebDetai(itemcontent);
 
     },
-    sendWeiBoDetai:function(content){
+    sendWeiBoDetai:function(content,callback){
         var url='log/sendweibo';
 
         var successFunc = function (form, action) {
+            if(callback)callback();
             Ext.Msg.alert("提示信息","微博发布成功");
         };
         var failFunc = function (form, action) {
-            Ext.Msg.alert("提示信息","发布失败");
+            if(callback)callback();
+            Ext.Msg.alert("提示信息","微博发布失败,太频繁");
         };
 
         var item={};
@@ -587,6 +602,21 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
       if(this.closevoice_state)this.closevoice_state=false;
        else this.closevoice_state=true;
+    },
+    loglistgridrendered:function(grid,e){
+        var view = grid.getView();
+
+        var tip = Ext.create('Ext.tip.ToolTip', {
+            target: view.el,
+            delegate: view.itemSelector,
+            trackMouse: true,
+            //renderTo: Ext.getBody(),
+            listeners: {
+                beforeshow: function updateTipBody(tip) {
+                     tip.update(view.getRecord(tip.triggerElement).get('logcontent'))
+                }
+            }
+        });
     },
     showmanualwin:function(btn){
         //alert(11);
