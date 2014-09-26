@@ -13,6 +13,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
          'eqimmain.ConfigWin',
          'eqimmain.LogListGrid',
          'eqimmain.QuicklistMenu',
+         'eqimmain.EarthQuickAutoPieChart',
          'eqimmain.AddNewSendMsgWin',
          'eqimmain.EditSendMsgWin',
          'eqimmain.SendMsgUsersGrid',

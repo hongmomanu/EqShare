@@ -59,7 +59,7 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickColumnChart', {
                     width: 140,
                     height: 28,
                     renderer: function(storeItem, item) {
-                        this.setTitle(storeItem.get('stime') + ': ' + storeItem.get('M1') + ' ');
+                        this.setTitle("时间"+Ext.Date.format(storeItem.get('stime'),'H:i')  + '  震级:' + storeItem.get('M1') + ' ');
                     }
                 },
                 label: {
@@ -83,7 +83,7 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickColumnChart', {
                         width: 140,
                         height: 28,
                         renderer: function(storeItem, item) {
-                            this.setTitle(storeItem.get('stime') + ': ' + storeItem.get('M1') + ' ');
+                            this.setTitle("时间"+Ext.Date.format(storeItem.get('stime'),'H:i')  + '  震级:' + storeItem.get('M') + ' ');
                         }
                     },
                     label: {

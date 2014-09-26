@@ -140,21 +140,24 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                           },
                           {
                               region:'south',
-                              height:300,
-                              layout:'fit',
-                              xtype:'container',
+                              split:true,
+                              collapsible: true,
+                              //collapsed: true,
+                              animCollapse: true,
+                              height:250,
+                              //layout:'fit',
                               layout: {
                                   type: 'hbox',
                                   align: 'stretch'
                               },
                               items:[
                                   {
-                                      flex:0.5,
+                                      flex:0.7,
                                       xtype:'earthquickcolumnchart'
                                   },
                                   {
-                                      flex:0.5,
-                                      xtype:'panel'
+                                      flex:0.3,
+                                      xtype:'earthquickautopiechart'
                                   }
 
                               ]
