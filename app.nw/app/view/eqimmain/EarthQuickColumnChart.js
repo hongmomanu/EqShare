@@ -20,49 +20,15 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickColumnChart', {
                     {name:'M1',
                         type: 'float'},
 
-                    {name:'stime',
-                        type: 'string'}
-                    ,{name:'time',
-                        type: 'string'}
+                    {name:'stime',  dateFormat: 'Y-m-d H:i:s',type: 'date'}
+
 
                 ],
                 data: [
-                    {
 
-                     M1:3,
-                     stime:'2014-12-20 14:00:22'
-                     },{
-
-                        M:3,
-
-                        stime:'2014-12-20 14:10:22'
-                    },{
-
-                        M1:4,
-                        stime:'2014-12-20 14:20:22'
-                    }
-                    ,{
-
-                        M1:3,
-                        stime:'2014-12-20 14:20:22'
-                    },{
-
-                        M1:2,
-                        stime:'2014-12-20 14:20:22'
-                    },{
-
-                        M1:2.5,
-                        stime:'2014-12-20 14:20:22'
-                    }
-                    ,{
-
-                        M:2,
-                        stime:'2014-12-20 14:30:22'
-
-                    }
 
                 ]
-                , sorters: { property: 'stime', direction : 'DESC' }
+                , sorters: { property: 'stime', direction : 'ASC' }
             }),
             axes: [{
                 type: 'Numeric',
@@ -75,8 +41,10 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickColumnChart', {
                 grid: true,
                 minimum: 0
             }, {
-                type: 'Category',
+                type: 'Time',
                 position: 'bottom',
+                dateFormat:'H:i',
+                step: [Ext.Date.MINUTE, 1],
                 fields: ['stime'],
                 title: '时间'
             }],

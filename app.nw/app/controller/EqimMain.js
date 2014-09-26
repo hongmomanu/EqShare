@@ -402,6 +402,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
           code_name="国家地震速报备份中心"+type ;
       }else if(data.code=="FJ"){
           code_name="东南区域中心"+type ;
+      }else if(data.code=="ZD"){
+          code_name="浙江定位系统"+type ;
       }else{
           code_name=data.code+type ;
       }
@@ -433,13 +435,18 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     sendTel:function(data,type){
         console.log("TEL");
+        var me=this;
         var content=this.contentFormat(data,type);
-        this.sendTelDetai(content);
+        var callback=function(){
+            me.makelog(data,"自动测定","短信:");
+        };
+        this.sendTelDetai(content,callback);
 
     },
-    makelog:function(data,type){
+    makelog:function(data,type,header){
 
         var content=this.contentFormat(data,type);
+        content=header+"<br>"+content;
         var url='duty/senddutylogs';
         var data={
             statustype:"发送消息",
@@ -501,6 +508,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     sendWeb:function(data,type,cid){
         console.log("wangye"+cid);
         content=this.contentFormat(data,type);
+        var me=this;
         var itemcontent='<?xml version="1.0" encoding="utf-8"?>'+
             '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">'
              +'<soap12:Body>'
@@ -528,7 +536,12 @@ Ext.define('EqimPrj.controller.EqimMain', {
         //item.url="http://www.zjdz.gov.cn/webservice/articleapi.asmx?op=GetAllCatalogList";
         //item.url="http://www.zjdz.gov.cn/webservice/articleapi.asmx?op=QuickInsert";
         //CommonFunc.ajaxSend(item, url, successFunc, failFunc, "post");
-        this.sendWebDetai(itemcontent);
+        var callback=function(){
+
+            me.makelog(data,"自动测定","网站:");
+
+        };
+        this.sendWebDetai(itemcontent,callback);
 
     },
     sendWeiBoDetai:function(content,callback){
@@ -557,8 +570,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     sendWeiBo:function(data,type){
         console.log("weibo");
+        var me=this;
         var content=this.contentFormat(data,type);
-        this.sendWeiBoDetai(content);
+        var callback=function(){
+
+            me.makelog(data,"自动测定","微博:");
+
+        };
+        this.sendWeiBoDetai(content,callback);
     },
     sendMsg:function(data){
         console.log(data);
@@ -574,14 +593,17 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 ){
                  if(filterdata[i].sendmethod.indexOf(0)>=0){
                      this.sendTel(data,"自动测定");
+
                  }
                 if(filterdata[i].sendmethod.indexOf(1)>=0){
                      this.sendWeiBo(data,"自动测定");
+
                  }
                 if(filterdata[i].sendmethod.indexOf(2)>=0){
                      this.sendWeb(data,"自动测定",371);
                      this.sendWeb(data,"自动测定",372);
                  }
+
                 break;
 
             }
@@ -691,8 +713,11 @@ Ext.define('EqimPrj.controller.EqimMain', {
     gridwebsocket:function(panel){
         var me=this;
         testobjpanel=panel;
-       var grid=panel.down('grid');
+       var grid=panel.down('earthlistgrid');
        var store=grid.getStore();
+
+        var chart=panel.down('earthquickcolumnchart');
+        var chart_store=chart.getStore();
        var url=localStorage.serverurl;
         url=url?url:"http://localhost:8080/lumprj/";
         /*url=url?"ws://"+url+"/":"ws://localhost:3001/";*/
@@ -710,7 +735,13 @@ Ext.define('EqimPrj.controller.EqimMain', {
            if(data.type==="eqim"){
 
                if(data['location'].indexOf('测试')<0){
+
+                   if(data.M==null)data.M=0;
+                   if(data.lon==null)data.lon=0;
+                   if(data.lat==null)data.lat=0;
+
                    store.add(data);
+                   chart_store.add({"stime":data.time,"M":data.M});
                    me.showMaplocation(data);
 
                    var resoreceurl=localStorage.serverurl+"audio/eqim.wav";
@@ -719,7 +750,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                    if(me.closevoice_state)play.play();
                    if(me.sendmessag_state){
                        me.sendMsg(data);
-                       me.makelog(data,"自动测定");
+
                    }
 
                }
