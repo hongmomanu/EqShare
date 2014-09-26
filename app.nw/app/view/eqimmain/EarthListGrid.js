@@ -33,7 +33,7 @@ Ext.define('EqimPrj.view.eqimmain.EarthListGrid', {
                         '<br><a>震级:M'+ (r.get('M')==null?"无":r.get('M').toFixed(1))+', Ml'
                         +(r.get('Ml')==null?"无":r.get('Ml').toFixed(1))+', Ms '+ (r.get('Ms')==null?"无":r.get('Ms').toFixed(1))+
                         '</a>'+
-                        '<br><a>地名:'+ r.get('location')+'</a></ul>';
+                        '<br><a>地名:'+ r.get('location')+'</a></ul> ';
                     //console.log(str);
                     return str;
                 }}
