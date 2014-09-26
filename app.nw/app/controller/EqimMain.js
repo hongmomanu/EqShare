@@ -203,13 +203,16 @@ Ext.define('EqimPrj.controller.EqimMain', {
           }else{
               var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"请等候..."});
               myMask.show();
-              var callback=function(){
-                  myMask.hide();
-              };
               if(sendways.indexOf("0")>=0){
-                 me.sendTelDetai(form.getValues().content,callback);
+                 me.sendTelDetai(form.getValues().content,function(){
+                     myMask.hide();
+                     me.makelog(form.getValues().content,"短信:");
+                 });
               }if(sendways.indexOf("1")>=0){
-                  me.sendWeiBoDetai(form.getValues().content,callback);
+                  me.sendWeiBoDetai(form.getValues().content,function(){
+                      myMask.hide();
+                      me.makelog(form.getValues().content,"微博:");
+                  });
               }
               /*if(sendways.indexOf("2")>=0){
                   me.sendWebDetai(form.getValues().content);
@@ -461,14 +464,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var me=this;
         var content=this.contentFormat(data,type);
         var callback=function(){
-            me.makelog(data,"自动测定","短信:");
+            me.makelog(content,"短信:");
         };
         this.sendTelDetai(content,callback);
 
     },
-    makelog:function(data,type,header){
+    makelog:function(content,header){
 
-        var content=this.contentFormat(data,type);
+
         content=header+"<br>"+content;
         var url='duty/senddutylogs';
         var data={
@@ -561,7 +564,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         //CommonFunc.ajaxSend(item, url, successFunc, failFunc, "post");
         var callback=function(){
 
-            me.makelog(data,"自动测定","网站:");
+            me.makelog(content,"网站:");
 
         };
         this.sendWebDetai(itemcontent,callback);
@@ -597,7 +600,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var content=this.contentFormat(data,type);
         var callback=function(){
 
-            me.makelog(data,"自动测定","微博:");
+            me.makelog(content,"微博:");
 
         };
         this.sendWeiBoDetai(content,callback);
