@@ -51,11 +51,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 click: this.addnewsendmsg
             },
             'earthlistgrid':{
-                itemclick: this.showMap
-            },
-            'earthlistgrid': {
+                itemclick: this.showMap,
                 itemcontextmenu: this.showmanualwinwithdata
             },
+
             'quicklistmenu > menuitem': {
                 click: this.quicklistmanager
             },
@@ -454,7 +453,6 @@ Ext.define('EqimPrj.controller.EqimMain', {
         };
 
         var item={};
-
         item.content=content;
         CommonFunc.ajaxSend(item, url, successFunc, failFunc, "post");
 
@@ -637,6 +635,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
     },
     showMaplocation:function(data){
+        //alert(1);
         this.map.panTo(new L.LatLng(data.lat,data.lon));
         if(this.popupmarker)this.map.removeLayer(this.popupmarker);
         var marker=L.marker([data.lat,data.lon]).addTo(this.map)

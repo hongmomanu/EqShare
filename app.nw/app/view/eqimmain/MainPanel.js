@@ -122,9 +122,48 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                 },
                 {
                     region: 'center',
-                    xtype:'panel',
-                    itemId:'map',
-                    html:'<div id="map" style="width: 100%; height: 100%"></div>'
+
+                    //collapsible: true,
+                    //collapsed: true,
+                    layout: 'fit',
+                    //animCollapse: true,
+                    items:{
+                      xtype:'container',
+                      layout:'border',
+                      items:[
+                          {
+                             region:'center',
+                             layout:'fit',
+                             xtype:'panel',
+                             itemId:'map',
+                             html:'<div id="map" style="width: 100%; height: 100%"></div>'
+                          },
+                          {
+                              region:'south',
+                              height:300,
+                              layout:'fit',
+                              xtype:'container',
+                              layout: {
+                                  type: 'hbox',
+                                  align: 'stretch'
+                              },
+                              items:[
+                                  {
+                                      flex:0.5,
+                                      xtype:'earthquickcolumnchart'
+                                  },
+                                  {
+                                      flex:0.5,
+                                      xtype:'panel'
+                                  }
+
+                              ]
+                          }
+                      ]
+                    }
+
+
+
                 },
                 {
                     region: 'east',
@@ -138,44 +177,9 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                     animCollapse: true,
                     xtype:'loglistgrid'
                 }
-                ,
-                {
-                    region: 'south',
-                    split: true,
-                    title:'统计信息',
-                    //minWidth: 200,
-                    //width:300,
-                    //maxWidth: 300,
-                    height:300,
-
-                    collapsible: true,
-                    //collapsed: true,
-                    layout: 'fit',
-                    animCollapse: true,
-                    items:{
-                        xtype: 'container',
-
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        items:[
-                            {
-                                flex:0.5,
-                                xtype:'earthquickcolumnchart'
-                            },
-                            {
-                                flex:0.5,
-                                xtype:'panel'
-                            }
-
-                        ]
 
 
-                    }
 
-
-                }
             ]
         });
         me.callParent(arguments);
