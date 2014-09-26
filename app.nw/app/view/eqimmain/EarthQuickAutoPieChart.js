@@ -21,6 +21,9 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickAutoPieChart', {
 
                 ],
                 data: [
+                    {name:"11",data:3},
+                    {name:"22",data:3},
+                    {name:"33",data:5}
 
                 ]
 
