@@ -12,6 +12,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
          'eqimmain.EarthListGrid',
          'eqimmain.ConfigWin',
          'eqimmain.LogListGrid',
+         'eqimmain.QuicklistMenu',
          'eqimmain.AddNewSendMsgWin',
          'eqimmain.EditSendMsgWin',
          'eqimmain.SendMsgUsersGrid',
@@ -51,6 +52,12 @@ Ext.define('EqimPrj.controller.EqimMain', {
             },
             'earthlistgrid':{
                 itemclick: this.showMap
+            },
+            'earthlistgrid': {
+                itemcontextmenu: this.showmanualwinwithdata
+            },
+            'quicklistmenu > menuitem': {
+                click: this.quicklistmanager
             },
             'sendmsgconfiggrid button[action=add]':{
                 click: this.showAddNewSendWin
@@ -375,6 +382,22 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     showMap:function(grid, record){
        this.showMaplocation(record.data);
+    },
+    quicklistmanager:function (item, e, eOpts) {
+        this.showmanualwin();
+        var content=this.contentFormat(item.parentMenu.data.data,"自动测定");
+        var form=this.manualsendmsgwin.down('form').getForm();
+        form.setValues({"content":content});
+
+    },
+    showmanualwinwithdata:function (panelView, record, item, index, e, eOpts) {
+
+        var me = this;
+        e.preventDefault();
+        e.stopEvent();
+        var menu = Ext.widget('quicklistmenu');
+        menu.data=record;
+        menu.showAt(e.getXY());
     },
     isplacein:function(location,epicenter){
         if(!epicenter||epicenter.replace(/\s+/g,"")==""){
