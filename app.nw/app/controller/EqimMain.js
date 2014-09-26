@@ -18,6 +18,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
          'eqimmain.AddNewSendUserWin',
          'eqimmain.EditSendUserWin',
          'eqimmain.ManualSendMsgWin',
+         'eqimmain.EarthQuickColumnChart',
          'eqimmain.SendMsgConfigGrid'
     ],
     models: [
@@ -396,11 +397,13 @@ Ext.define('EqimPrj.controller.EqimMain', {
       var time=new Date(data.time);
 
       if(data.code=="AU"){
-          code_name="中国地震台网中心"+type
+          code_name="国家地震台网中心"+type ;
       }else if(data.code=="GD"){
-          code_name="广东省地震局"+type
+          code_name="国家地震速报备份中心"+type ;
       }else if(data.code=="FJ"){
-          code_name="福建省地震局"+type
+          code_name="东南区域中心"+type ;
+      }else{
+          code_name=data.code+type ;
       }
       content=code_name+"："+(time.getMonth()+1)+"月"+(time.getDate())+
           "日"+(time.getHours()<10?"0"+time.getHours():time.getHours())+"时"+
@@ -687,6 +690,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
     gridwebsocket:function(panel){
         var me=this;
+        testobjpanel=panel;
        var grid=panel.down('grid');
        var store=grid.getStore();
        var url=localStorage.serverurl;

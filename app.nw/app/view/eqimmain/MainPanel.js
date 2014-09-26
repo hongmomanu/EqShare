@@ -138,6 +138,44 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                     animCollapse: true,
                     xtype:'loglistgrid'
                 }
+                ,
+                {
+                    region: 'south',
+                    split: true,
+                    title:'统计信息',
+                    //minWidth: 200,
+                    //width:300,
+                    //maxWidth: 300,
+                    height:300,
+
+                    collapsible: true,
+                    //collapsed: true,
+                    layout: 'fit',
+                    animCollapse: true,
+                    items:{
+                        xtype: 'container',
+
+                        layout: {
+                            type: 'hbox',
+                            align: 'stretch'
+                        },
+                        items:[
+                            {
+                                flex:0.5,
+                                xtype:'earthquickcolumnchart'
+                            },
+                            {
+                                flex:0.5,
+                                xtype:'panel'
+                            }
+
+                        ]
+
+
+                    }
+
+
+                }
             ]
         });
         me.callParent(arguments);
