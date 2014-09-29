@@ -532,7 +532,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     sendWeb:function(data,type,cid){
         console.log("wangye"+cid);
-        content=this.contentFormat(data,type);
+        var content=this.contentFormat(data,type);
+        var time=new Date(data.time);
+        var title=Ext.Date.format(time,'m月d日H时i分')+data.location+"发生"+data.M.toFixed(1)+"级左右地震。";
         var me=this;
         var itemcontent='<?xml version="1.0" encoding="utf-8"?>'+
             '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">'
@@ -544,7 +546,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             +'<QuickInsert xmlns="http://www.zjdz.gov.cn/">'
             +'<username>ZJDZ</username>'
             +'<password>L9dP2kaB</password>'
-            +'<title>'+content+'</title>'
+            +'<title>'+title+'</title>'
             +'<cid>'+cid+'</cid>'
             +'<summary></summary>'
             +'<content>'+content+'</content>'
@@ -626,7 +628,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                  }
                 if(filterdata[i].sendmethod.indexOf(2)>=0){
                      this.sendWeb(data,"自动测定",371);
-                     this.sendWeb(data,"自动测定",372);
+                     //this.sendWeb(data,"自动测定",372);
                  }
 
                 break;
@@ -736,6 +738,15 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
     },
 
+    playvoicealert:function(){
+        var resoreceurl=localStorage.serverurl+"audio/eqim.wav";
+        var play=new Audio(resoreceurl);
+        this.audioplay=play;
+        if(this.closevoice_state)play.play();
+    },
+    makestatics:function(){
+
+    },
     gridwebsocket:function(panel){
         var me=this;
         testobjpanel=panel;
@@ -744,6 +755,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         var chart=panel.down('earthquickcolumnchart');
         var chart_store=chart.getStore();
+
+        var piechart=panel.down('earthquickautopiechart');
+        var pie_store=piechart.getStore();
+
        var url=localStorage.serverurl;
         url=url?url:"http://localhost:8080/lumprj/";
         /*url=url?"ws://"+url+"/":"ws://localhost:3001/";*/
@@ -770,10 +785,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
                    chart_store.add({"stime":data.time,"M":data.M});
                    me.showMaplocation(data);
 
-                   var resoreceurl=localStorage.serverurl+"audio/eqim.wav";
+                   /*var resoreceurl=localStorage.serverurl+"audio/eqim.wav";
                    var play=new Audio(resoreceurl);
                    me.audioplay=play;
-                   if(me.closevoice_state)play.play();
+                   if(me.closevoice_state)play.play();*/
+
+                   me.playvoicealert();
+
+
                    if(me.sendmessag_state){
                        me.sendMsg(data);
 
@@ -803,6 +822,47 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
 
+    },
+    getJopenSweb:function(){
+        var checkdutytask={
+            run: function(){
+               console.log(111);
+               var time=new Date();
+               var year=time.getFullYear();
+               var startMonth=time.getMonth()+1;
+               var startDay=time.getDate();
+               var startHour=time.getHours();
+               var stopMonth=time.getMonth()+1;
+               var stopDay=time.getDate();
+               var stopHour=time.getHours()+1;
+                var url='log/loggetjopensdata';
+
+                var successFunc = function (res) {
+                    console.log(res);
+                };
+                var failFunc = function (form, action) {
+                    Ext.Msg.alert("提示信息","获取服务失败,请查看服务是否异常!");
+                };
+
+                var item={
+                    url:"http://10.33.5.103:8080/JOPENSWeb/cata/catalogListController",
+                    startYear:year,
+                    startMonth:startMonth,
+                    startDay:startDay,
+                    startHour:startHour,
+                    stopMonth:stopMonth,
+                    stopDay:stopDay,
+                    stopHour:stopHour
+
+                };
+                CommonFunc.ajaxSend(item, url, successFunc, failFunc, "get");
+
+
+
+            },
+            interval:1800000
+        }
+        Ext.TaskManager.start(checkdutytask);
     },
     layoutfunc:function(panel){
        this.gridwebsocket(panel);

@@ -157,7 +157,21 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                                   },
                                   {
                                       flex:0.3,
-                                      xtype:'earthquickautopiechart'
+                                      xtype:'panel',
+                                      layout:{
+                                          type: 'vbox',
+                                          align: 'stretch'
+                                      },
+                                      items:[
+                                          {
+                                              xtype:'earthquickautopiechart',
+                                              flex:1
+                                        }, {
+                                              xtype:'earthquickautopiechart',
+                                              flex:1
+                                          }
+                                      ]
+
                                   }
 
                               ]

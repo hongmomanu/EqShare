@@ -32,7 +32,7 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickAutoPieChart', {
             legend: {
                 position: 'right'
             },
-            insetPadding: 60,
+            //insetPadding: 60,
             theme: 'Base:gradients',
             series: [{
                 type: 'pie',
@@ -41,12 +41,12 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickAutoPieChart', {
                 //donut: false,
                 tips: {
                     trackMouse: true,
-                    width: 140,
+                    width: 40,
                     height: 28,
                     renderer: function(storeItem, item) {
                         //calculate percentage.
                         var total = 0;
-                        var store=this.getStore();
+                        var store=me.getStore();
                         store.each(function(rec) {
                             total += rec.get('data');
                         });
