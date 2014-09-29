@@ -845,7 +845,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     getJopenSweb:function(callback){
         var checkdutytask={
             run: function(){
-               console.log(111);
+               //console.log(111);
                var time=new Date();
                var starttime=Ext.Date.add(time,Ext.Date.HOUR,-5);
                var year=time.getFullYear();
@@ -912,7 +912,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
             },
-            interval:1800000
+            interval:100000
         }
         Ext.TaskManager.start(checkdutytask);
     },
