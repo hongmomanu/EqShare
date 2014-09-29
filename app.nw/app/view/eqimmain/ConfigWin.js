@@ -77,11 +77,19 @@ Ext.define('EqimPrj.view.eqimmain.ConfigWin' ,{
                         items:[
                             {
                                 xtype: 'textfield',
-                                fieldLabel: '地址',
+                                fieldLabel: '网站地址',
                                 required:true,
                                 allowBlank:false,
                                 afterLabelTextTpl: required,
                                 name: 'websiteurl'
+                            },
+                            {
+                                xtype: 'textfield',
+                                fieldLabel: 'JOPENSWeb地址',
+                                required:true,
+                                allowBlank:false,
+                                afterLabelTextTpl: required,
+                                name: 'jopenwebsiteurl'
                             }
                         ]
                     },

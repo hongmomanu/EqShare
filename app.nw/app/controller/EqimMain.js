@@ -154,11 +154,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
         }
         this.configwin.show();
         var form =this.configwin.down('form').getForm();
-        if(!localStorage.websiteurl)localStorage.websiteurl='http://www.zjdz.gov.cn/webservice/articleapi.asmx?op=QuickInsert' ;
-        if(!localStorage.weibousername)localStorage.weibousername='liaolongshiwo@163.com';
-        if(!localStorage.weibopassword)localStorage.weibopassword='long090909';
+
         form.setValues({"weibousername":localStorage.weibousername,
             "weibopassword":localStorage.weibopassword,
+            "jopenwebsiteurl":localStorage.jopenwebsiteurl,
             "websiteurl":localStorage.websiteurl});
 
 
@@ -351,6 +350,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         localStorage.weibousername=form.getValues().weibousername;
         localStorage.weibopassword=form.getValues().weibopassword;
         localStorage.websiteurl=form.getValues().websiteurl;
+        localStorage.jopenwebsiteurl=form.getValues().jopenwebsiteurl;
 
 
         var changed_data=store.getModifiedRecords();
@@ -896,7 +896,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 };
 
                 var item={
-                    url:"http://10.33.5.103:8080/JOPENSWeb/cata/catalogListController",
+                    url:localStorage.jopenwebsiteurl,
                     startYear:year,
                     startMonth:startMonth,
                     startDay:startDay,
@@ -1142,6 +1142,12 @@ Ext.define('EqimPrj.controller.EqimMain', {
         this.plotcolumn.draw();
     },
     layoutfunc:function(panel){
+        if(!localStorage.websiteurl)localStorage.websiteurl='http://www.zjdz.gov.cn/webservice/articleapi.asmx?op=QuickInsert' ;
+        if(!localStorage.jopenwebsiteurl)localStorage.jopenwebsiteurl='http://10.33.5.103:8080/JOPENSWeb/cata/catalogListController' ;
+        if(!localStorage.weibousername)localStorage.weibousername='liaolongshiwo@163.com';
+        if(!localStorage.weibopassword)localStorage.weibopassword='long090909';
+
+
        this.gridwebsocket(panel);
        this.initcolumnchart();
        var me=this;
