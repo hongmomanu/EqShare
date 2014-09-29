@@ -1,6 +1,6 @@
-Ext.define('EqimPrj.view.eqimmain.EarthQuickAutoPieChart', {
+Ext.define('EqimPrj.view.eqimmain.EarthQuickManuelPieChart', {
     extend: 'Ext.chart.Chart',
-    alias:'widget.earthquickautopiechart',
+    alias:'widget.earthquickmanuelpiechart',
     layout: 'fit',
     requires: [
     ],
@@ -9,7 +9,7 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickAutoPieChart', {
         Ext.apply(me, {
             xtype: 'chart',
             animate: true,
-            store: 'eqimmain.EarthQuickAutoPieCharts',
+            store: 'eqimmain.EarthQuickManuelPieCharts',
             shadow: true,
             legend: {
                 position: 'right'

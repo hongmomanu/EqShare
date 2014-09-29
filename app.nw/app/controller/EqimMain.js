@@ -14,6 +14,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
          'eqimmain.LogListGrid',
          'eqimmain.QuicklistMenu',
          'eqimmain.EarthQuickAutoPieChart',
+         'eqimmain.EarthQuickManuelPieChart',
          'eqimmain.AddNewSendMsgWin',
          'eqimmain.EditSendMsgWin',
          'eqimmain.SendMsgUsersGrid',
@@ -33,6 +34,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
           'eqimmain.LogDutys' ,
           'eqimmain.SendMsgConfigs',
           'eqimmain.EarthQuickColumnCharts',
+          'eqimmain.EarthQuickAutoPieCharts',
+          'eqimmain.EarthQuickManuelPieCharts',
           'eqimmain.SendMsgUsers'
     ],
 
@@ -763,10 +766,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
        var store=grid.getStore();
 
         //var chart=panel.down('earthquickcolumnchart');
-        var chart_store=Ext.StoreMgr.get('eqimmain.EarthQuickColumnCharts');
+        //var chart_store=Ext.StoreMgr.get('eqimmain.EarthQuickColumnCharts');
 
-        var piechart=panel.down('earthquickautopiechart');
-        var pie_store=piechart.getStore();
+        //var piechart=panel.down('earthquickautopiechart');
+        //var pie_store=piechart.getStore();
 
        var url=localStorage.serverurl;
         url=url?url:"http://localhost:8080/lumprj/";
@@ -791,7 +794,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
                    if(data.lat==null)data.lat=0;
 
                    store.add(data);
-                   chart_store.add({"stime":new Date(data.time),"M1":data.M});
+
+                   me.mldata.push([new Date(data.time),data.M]);
+                   var autopiedata=me.updatepies(me.mldata);
+                   Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').loadData(autopiedata);
+                   me.updatecolumchart();
+
+                   //chart_store.add({"stime":new Date(data.time),"M1":data.M});
+
                    me.showMaplocation(data);
 
                    /*var resoreceurl=localStorage.serverurl+"audio/eqim.wav";
@@ -837,13 +847,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
             run: function(){
                console.log(111);
                var time=new Date();
+               var starttime=Ext.Date.add(time,Ext.Date.HOUR,-5);
                var year=time.getFullYear();
-               var startMonth=time.getMonth()+1;
+               var startMonth=starttime.getMonth()+1;
                 startMonth=startMonth<10?("0"+startMonth):startMonth;
-               var startDay=time.getDate()-1;
+               var startDay=starttime.getDate();
                 startDay=startDay<10?("0"+startDay):startDay;
 
-               var startHour=time.getHours();
+               var startHour=starttime.getHours();
                 startHour=startHour<10?("0"+startHour):startHour;
 
                 var stopMonth=time.getMonth()+1;
@@ -905,8 +916,69 @@ Ext.define('EqimPrj.controller.EqimMain', {
         }
         Ext.TaskManager.start(checkdutytask);
     },
-    initcolumnchart:function(){
+    mldata:[],
+    mdata:[],
+    updatepies:function(data){
 
+       var itemauto={"<0级":0,"0-1级":0,"1-2级":0,"2-3级":0,"3-4级":0,
+            "4-5级":0, "5-6级":0,"6-7级":0,">7级":0
+        };
+
+
+       for(var i=0;i<data.length;i++){
+           if(data[i][1]<0){
+               itemauto["<0级"]+=1;
+           }else if(data[i][1]<1){
+               itemauto["0-1级"]+=1;
+           }
+           else if(data[i][1]<2){
+               itemauto["1-2级"]+=1;
+           }
+           else if(data[i][1]<3){
+               itemauto["2-3级"]+=1;
+           }
+           else if(data[i][1]<4){
+               itemauto["3-4级"]+=1;
+           }
+           else if(data[i][1]<5){
+               itemauto["4-5级"]+=1;
+           }
+           else if(data[i][1]<6){
+               itemauto["5-6级"]+=1;
+           }else if(data[i][1]<7){
+               itemauto["6-7级"]+=1;
+           }else {
+               itemauto[">7级"]+=1;
+           }
+
+
+       }
+        var dataauto=[];
+        for(var m in itemauto ){
+            if(itemauto[m]>0){
+                dataauto.push({name:m,data:itemauto[m]});
+            }
+        }
+
+        return dataauto;
+    },
+    filtermanueldata:function(data){
+        var result=[];
+        if(this.mdata.length>0){
+            for(var i=0;i<data.length;i++){
+
+                if(data[i][0]>this.mdata[this.mdata.length-1][0]){
+
+                    result.push(data[i]);
+                }
+            }
+        }else{
+            result =data;
+        }
+       return result;
+    },
+    initcolumnchart:function(){
+        var me=this;
         function weekendAreas(axes) {
 
             var markings = [],
@@ -931,108 +1003,143 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
             return markings;
         }
+        console.log(me.mdata);
+
 
         var callback=function(data){
-            var plotcolumn = $.plot("#earthquickcolumnchart", [{ label: "MM", data: data, color: 'green' } ], {
-                series: {
-                    shadowSize: 0,	// Drawing is faster without shadows
-                    //bars: {show: true},
-                    lines: {show: true},
-                    points: {
-                        show: true
-                    }
+            data=me.filtermanueldata(data);
+            if(data.length>0){
 
-                },
-                grid: {
-                    hoverable: true,
-                    markings: weekendAreas,
-                    clickable: true
-                },
-                yaxis: {
-                },
-                selection: {
-                    mode: "x"
-                },
-                xaxis: {
-                    //show: false,
-                    mode: "time",
-                    timezone: "browser"
+                me.mdata=me.mdata.concat(data);
+
+                var manupiedata=me.updatepies(me.mdata);
+                //var manudata=me.updatepies(me.mldata);
+                Ext.StoreMgr.get('eqimmain.EarthQuickManuelPieCharts').loadData(manupiedata);
+                //Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').add(autopiedata);
+
+                if(!me.plotcolumn){
+                    me.plotcolumn = $.plot("#earthquickcolumnchart", [
+                        { label: "JOPENSWeb", data: me.mdata, color: 'green' },
+                        { data: me.mldata, label: "自动速报" }
+                    ], {
+                        series: {
+                            shadowSize: 0,	// Drawing is faster without shadows
+                            //bars: {show: true},
+                            lines: {show: true},
+                            points: {
+                                show: true
+                            }
+
+                        },
+                        grid: {
+                            hoverable: true,
+                            markings: weekendAreas,
+                            clickable: true
+                        },
+                        yaxis: {},
+                        selection: {
+                            mode: "x"
+                        },
+                        xaxis: {
+                            //show: false,
+                            mode: "time",
+                            timezone: "browser"
+                        }
+                    });
+                    me.plotcolumnoverview= $.plot("#earthquickcolumnchartoverview", [
+                        { data: me.mdata, color: 'green' },{ data: me.mldata} ], {
+                        series: {
+                            lines: {
+                                show: true/*,
+                                 lineWidth: 1*/
+                            },
+                            shadowSize: 0
+                        },
+                        xaxis: {
+                            //ticks: [],
+                            show:false,
+                            mode: "time",
+                            timezone: "browser"
+                        },
+                        yaxis: {
+                            //ticks: [],
+                            //min: 0,
+                            //autoscaleMargin: 0.1
+                        },
+                        selection: {
+                            mode: "x"
+                        }
+                    });
+
+                    $("#earthquickcolumnchart").bind("plotselected", function (event, ranges) {
+
+                        // do the zooming
+                        $.each(me.plotcolumn.getXAxes(), function(_, axis) {
+                            var opts = axis.options;
+                            opts.min = ranges.xaxis.from;
+                            opts.max = ranges.xaxis.to;
+                        });
+                        me.plotcolumn.setupGrid();
+                        me.plotcolumn.draw();
+                        me.plotcolumn.clearSelection();
+
+                        // don't fire event on the overview to prevent eternal loop
+
+                        me.plotcolumnoverview.setSelection(ranges, true);
+                    });
+
+                    $("#earthquickcolumnchartoverview").bind("plotselected", function (event, ranges) {
+                        me.plotcolumn.setSelection(ranges);
+                    });
+
+
+                    $("<div id='columntooltip'></div>").css({
+                        position: "absolute",
+                        display: "none",
+                        border: "1px solid #fdd",
+                        padding: "2px",
+                        "background-color": "#fee",
+                        opacity: 0.80
+                    }).appendTo("body");
+
+                    $("#earthquickcolumnchart").bind("plothover", function (event, pos, item) {
+                        //console.log(item);
+                        if (item) {
+                            //console.log(item);
+                            var x = item.datapoint[0],
+                                y = item.datapoint[1];
+
+                            $("#columntooltip").html("时间:" + Ext.Date.format(new Date(x),'Y-m-d H:i:s') + " <br>震级: " + y.toFixed(1))
+                                .css({top: item.pageY+5, left: item.pageX+5})
+                                .fadeIn(200);
+                        } else {
+                            $("#columntooltip").hide();
+                        }
+                    });
+
                 }
-            });
-           var plotcolumnoverview= $.plot("#earthquickcolumnchartoverview", [{ data: data, color: 'green' } ], {
-               series: {
-                   lines: {
-                       show: true/*,
-                       lineWidth: 1*/
-                   },
-                   shadowSize: 0
-               },
-               xaxis: {
-                   //ticks: [],
-                   show:false,
-                   mode: "time"
-               },
-               yaxis: {
-                   //ticks: [],
-                   //min: 0,
-                   //autoscaleMargin: 0.1
-               },
-               selection: {
-                   mode: "x"
-               }
-           });
-
-            $("#earthquickcolumnchart").bind("plotselected", function (event, ranges) {
-
-                // do the zooming
-                $.each(plotcolumn.getXAxes(), function(_, axis) {
-                    var opts = axis.options;
-                    opts.min = ranges.xaxis.from;
-                    opts.max = ranges.xaxis.to;
-                });
-                plotcolumn.setupGrid();
-                plotcolumn.draw();
-                plotcolumn.clearSelection();
-
-                // don't fire event on the overview to prevent eternal loop
-
-                plotcolumnoverview.setSelection(ranges, true);
-            });
-
-            $("#earthquickcolumnchartoverview").bind("plotselected", function (event, ranges) {
-                plotcolumn.setSelection(ranges);
-            });
-
-
-            $("<div id='columntooltip'></div>").css({
-                position: "absolute",
-                display: "none",
-                border: "1px solid #fdd",
-                padding: "2px",
-                "background-color": "#fee",
-                opacity: 0.80
-            }).appendTo("body");
-
-            $("#earthquickcolumnchart").bind("plothover", function (event, pos, item) {
-                //console.log(item);
-                if (item) {
-                    //console.log(item);
-                    var x = item.datapoint[0],
-                        y = item.datapoint[1];
-
-                    $("#columntooltip").html("时间:" + Ext.Date.format(new Date(x),'Y-m-d H:i:s') + " <br>震级: " + y.toFixed(1))
-                        .css({top: item.pageY+5, left: item.pageX+5})
-                        .fadeIn(200);
-                } else {
-                    $("#columntooltip").hide();
+                else{
+                    me.updatecolumchart();
                 }
-            });
+
+            }
+
 
 
 
         }
         this.getJopenSweb(callback);
 
+    },
+    updatecolumchart:function(){
+        this.plotcolumnoverview.setData([{data:this.mdata,color: 'green'},{ data: this.mldata }]);
+        this.plotcolumn.setData([{ label: "JOPENSWeb", data: this.mdata, color: 'green' },
+            { data: this.mldata, label: "自动速报" }]);
+        // Since the axes don't change, we don't need to call plot.setupGrid()
+        this.plotcolumn.setupGrid();
+        this.plotcolumnoverview.setupGrid();
+        this.plotcolumnoverview.draw();
+        this.plotcolumn.draw();
     },
     layoutfunc:function(panel){
        this.gridwebsocket(panel);

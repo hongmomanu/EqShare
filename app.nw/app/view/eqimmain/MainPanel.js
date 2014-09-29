@@ -176,7 +176,7 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                                               xtype:'earthquickautopiechart',
                                               flex:1
                                         }, {
-                                              xtype:'earthquickautopiechart',
+                                              xtype:'earthquickmanuelpiechart',
                                               flex:1
                                           }
                                       ]
