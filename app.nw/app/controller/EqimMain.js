@@ -32,6 +32,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     stores: [
           'eqimmain.LogDutys' ,
           'eqimmain.SendMsgConfigs',
+          'eqimmain.EarthQuickColumnCharts',
           'eqimmain.SendMsgUsers'
     ],
 
@@ -43,6 +44,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
            }, */
             'mainpanel':{
                 afterrender: this.layoutfunc,
+                afterlayout:this.afterlayout
+            },
+            'mappanel':{
                 afterlayout:this.afterlayout
             },
             'configwin button[action=save]':{
@@ -109,6 +113,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
             'mainpanel image': {
                 voiceclick: this.voiceclick,
                 playsendmessageclick:this.playsendmessageclick
+            },
+            'mainpanel panel': {
+                mapupdate: this.afterlayout
+
             },
             'mainpanel menuitem[action=refresh]':{
                 click: this.refreshwin
@@ -734,6 +742,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     afterlayout:function(panel){
         testobj=this;
+
         if(this.map)this.map.invalidateSize(true);
 
     },
@@ -753,8 +762,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
        var grid=panel.down('earthlistgrid');
        var store=grid.getStore();
 
-        var chart=panel.down('earthquickcolumnchart');
-        var chart_store=chart.getStore();
+        //var chart=panel.down('earthquickcolumnchart');
+        var chart_store=Ext.StoreMgr.get('eqimmain.EarthQuickColumnCharts');
 
         var piechart=panel.down('earthquickautopiechart');
         var pie_store=piechart.getStore();
@@ -782,7 +791,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                    if(data.lat==null)data.lat=0;
 
                    store.add(data);
-                   chart_store.add({"stime":data.time,"M":data.M});
+                   chart_store.add({"stime":new Date(data.time),"M1":data.M});
                    me.showMaplocation(data);
 
                    /*var resoreceurl=localStorage.serverurl+"audio/eqim.wav";
@@ -823,22 +832,53 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
     },
-    getJopenSweb:function(){
+    getJopenSweb:function(callback){
         var checkdutytask={
             run: function(){
                console.log(111);
                var time=new Date();
                var year=time.getFullYear();
                var startMonth=time.getMonth()+1;
-               var startDay=time.getDate();
+                startMonth=startMonth<10?("0"+startMonth):startMonth;
+               var startDay=time.getDate()-1;
+                startDay=startDay<10?("0"+startDay):startDay;
+
                var startHour=time.getHours();
-               var stopMonth=time.getMonth()+1;
+                startHour=startHour<10?("0"+startHour):startHour;
+
+                var stopMonth=time.getMonth()+1;
+                stopMonth=stopMonth<10?("0"+stopMonth):stopMonth;
+
                var stopDay=time.getDate();
+                stopDay=stopDay<10?("0"+stopDay):stopDay;
+
                var stopHour=time.getHours()+1;
+               stopHour=stopHour<10?("0"+stopHour):stopHour;
+
                 var url='log/loggetjopensdata';
 
                 var successFunc = function (res) {
                     console.log(res);
+                    var res = Ext.JSON.decode(res.responseText);
+                    var html= $(res.msg);
+                    //testhtml=html;
+                    var finder=html.find('table[border$=1]').find('tr');
+                    if(finder.length>2){
+                        var data=[];
+                        for(var i=2;i<finder.length;i++){
+                            var finderobj=$(finder[i]).find("i");
+                            var m=eval(finderobj.eq(5).text());
+                            var date=finderobj.eq(0).text().split(".")[1].substring(0,20);
+                            //var store=Ext.StoreMgr.get('eqimmain.EarthQuickColumnCharts');
+                            //store.add({stime:new Date(date),M:m});
+                            //console.log({stime:new Date(date),M:m});
+                            data.push([new Date(date),m]);
+
+                        }
+                        callback(data);
+
+                    }
+
                 };
                 var failFunc = function (form, action) {
                     Ext.Msg.alert("提示信息","获取服务失败,请查看服务是否异常!");
@@ -852,7 +892,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
                     startHour:startHour,
                     stopMonth:stopMonth,
                     stopDay:stopDay,
-                    stopHour:stopHour
+                    stopHour:stopHour,
+                    stopYear:year
 
                 };
                 CommonFunc.ajaxSend(item, url, successFunc, failFunc, "get");
@@ -864,8 +905,138 @@ Ext.define('EqimPrj.controller.EqimMain', {
         }
         Ext.TaskManager.start(checkdutytask);
     },
+    initcolumnchart:function(){
+
+        function weekendAreas(axes) {
+
+            var markings = [],
+                d = new Date(axes.xaxis.min);
+
+            // go to the first Saturday
+
+            d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 1) % 7))
+            d.setUTCSeconds(0);
+            d.setUTCMinutes(0);
+            d.setUTCHours(0);
+
+            var i = d.getTime();
+
+            // when we don't set yaxis, the rectangle automatically
+            // extends to infinity upwards and downwards
+
+            do {
+                markings.push({ xaxis: { from: i, to: i + 2 * 24 * 60 * 60 * 1000 } });
+                i += 7 * 24 * 60 * 60 * 1000;
+            } while (i < axes.xaxis.max);
+
+            return markings;
+        }
+
+        var callback=function(data){
+            var plotcolumn = $.plot("#earthquickcolumnchart", [{ label: "MM", data: data, color: 'green' } ], {
+                series: {
+                    shadowSize: 0,	// Drawing is faster without shadows
+                    //bars: {show: true},
+                    lines: {show: true},
+                    points: {
+                        show: true
+                    }
+
+                },
+                grid: {
+                    hoverable: true,
+                    markings: weekendAreas,
+                    clickable: true
+                },
+                yaxis: {
+                },
+                selection: {
+                    mode: "x"
+                },
+                xaxis: {
+                    //show: false,
+                    mode: "time",
+                    timezone: "browser"
+                }
+            });
+           var plotcolumnoverview= $.plot("#earthquickcolumnchartoverview", [{ data: data, color: 'green' } ], {
+               series: {
+                   lines: {
+                       show: true/*,
+                       lineWidth: 1*/
+                   },
+                   shadowSize: 0
+               },
+               xaxis: {
+                   //ticks: [],
+                   show:false,
+                   mode: "time"
+               },
+               yaxis: {
+                   //ticks: [],
+                   //min: 0,
+                   //autoscaleMargin: 0.1
+               },
+               selection: {
+                   mode: "x"
+               }
+           });
+
+            $("#earthquickcolumnchart").bind("plotselected", function (event, ranges) {
+
+                // do the zooming
+                $.each(plotcolumn.getXAxes(), function(_, axis) {
+                    var opts = axis.options;
+                    opts.min = ranges.xaxis.from;
+                    opts.max = ranges.xaxis.to;
+                });
+                plotcolumn.setupGrid();
+                plotcolumn.draw();
+                plotcolumn.clearSelection();
+
+                // don't fire event on the overview to prevent eternal loop
+
+                plotcolumnoverview.setSelection(ranges, true);
+            });
+
+            $("#earthquickcolumnchartoverview").bind("plotselected", function (event, ranges) {
+                plotcolumn.setSelection(ranges);
+            });
+
+
+            $("<div id='columntooltip'></div>").css({
+                position: "absolute",
+                display: "none",
+                border: "1px solid #fdd",
+                padding: "2px",
+                "background-color": "#fee",
+                opacity: 0.80
+            }).appendTo("body");
+
+            $("#earthquickcolumnchart").bind("plothover", function (event, pos, item) {
+                //console.log(item);
+                if (item) {
+                    //console.log(item);
+                    var x = item.datapoint[0],
+                        y = item.datapoint[1];
+
+                    $("#columntooltip").html("时间:" + Ext.Date.format(new Date(x),'Y-m-d H:i:s') + " <br>震级: " + y.toFixed(1))
+                        .css({top: item.pageY+5, left: item.pageX+5})
+                        .fadeIn(200);
+                } else {
+                    $("#columntooltip").hide();
+                }
+            });
+
+
+
+        }
+        this.getJopenSweb(callback);
+
+    },
     layoutfunc:function(panel){
        this.gridwebsocket(panel);
+       this.initcolumnchart();
        var me=this;
         var d = new Ext.util.DelayedTask(function(){
             //console.log($('#map').height());

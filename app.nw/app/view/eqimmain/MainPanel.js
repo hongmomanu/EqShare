@@ -136,6 +136,10 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                              layout:'fit',
                              xtype:'panel',
                              itemId:'map',
+                             listeners:{
+                               'afterlayout':function(){this.fireEvent('mapupdate',this);}
+                             },
+                             alias:'widget.mappanel',
                              html:'<div id="map" style="width: 100%; height: 100%"></div>'
                           },
                           {
@@ -144,7 +148,7 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                               collapsible: true,
                               //collapsed: true,
                               animCollapse: true,
-                              height:250,
+                              height:410,
                               //layout:'fit',
                               layout: {
                                   type: 'hbox',
@@ -153,7 +157,12 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                               items:[
                                   {
                                       flex:0.7,
-                                      xtype:'earthquickcolumnchart'
+                                      xtype:'panel',
+                                      layout:'fit',
+                                      html:'<div style="width: 100%;height: 100%"  class="demo-container"><div id="earthquickcolumnchart" style="height: 220;overflow: hidden;"></div>'
+                                          +'<div id="earthquickcolumnchartoverview" style="height: 150;overflow:hidden"></div></div>'
+
+                                      //xtype:'earthquickcolumnchart'
                                   },
                                   {
                                       flex:0.3,
