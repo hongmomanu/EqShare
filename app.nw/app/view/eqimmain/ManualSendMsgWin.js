@@ -55,12 +55,14 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgWin' ,{
                             {
                                 xtype:'checkbox',
                                 boxLabel: '短信',
+
                                 checked: true,
                                 name: 'sendway',
                                 inputValue: '0'
                             }, {
                                 xtype:'checkbox',
                                 boxLabel: '微博',
+
                                 checked: true,
                                 name: 'sendway',
                                 inputValue: '1'
