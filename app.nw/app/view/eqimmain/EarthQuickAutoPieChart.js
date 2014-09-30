@@ -44,7 +44,7 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickAutoPieChart', {
                     field: 'name',
                     display: 'rotate',
                     contrast: true,
-                    font: '18px Arial'
+                    font: '10px Arial'
                 }
             }]
         });

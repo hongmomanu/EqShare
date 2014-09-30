@@ -12,6 +12,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
          'eqimmain.EarthListGrid',
          'eqimmain.ConfigWin',
          'eqimmain.LogListGrid',
+         'eqimmain.StaticConfigWin',
          'eqimmain.QuicklistMenu',
          'eqimmain.EarthQuickAutoPieChart',
          'eqimmain.EarthQuickManuelPieChart',
@@ -54,6 +55,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
             },
             'configwin button[action=save]':{
                 click: this.savesendmsgconfig
+            },
+            'staticconfigwin button[action=save]':{
+                click: this.savestaticconfig
             },
             'addnewsendmsgwin button[action=add]':{
                 click: this.addnewsendmsg
@@ -129,6 +133,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
             },
             'mainpanel menuitem[action=openconfigwin]':{
                 click: this.openconfigwin
+            },
+            'mainpanel menuitem[action=openstaticconfigwin]':{
+                click: this.openstaticconfigwin
             }
 
         });
@@ -148,6 +155,17 @@ Ext.define('EqimPrj.controller.EqimMain', {
     refreshwin:function(btn){
       window.location.reload();
     },
+    openstaticconfigwin:function(btn){
+        if(!this.staticconfigwin){
+            this.staticconfigwin= Ext.widget('staticconfigwin');
+        }
+        this.staticconfigwin.show();
+        var form =this.staticconfigwin.down('form').getForm();
+
+        form.setValues({"staticdays":localStorage.staticdays,
+            "jopenwebsiteurl":localStorage.jopenwebsiteurl
+            });
+    },
     openconfigwin:function(btn){
         if(!this.configwin){
             this.configwin= Ext.widget('configwin');
@@ -157,7 +175,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         form.setValues({"weibousername":localStorage.weibousername,
             "weibopassword":localStorage.weibopassword,
-            "jopenwebsiteurl":localStorage.jopenwebsiteurl,
+            //"jopenwebsiteurl":localStorage.jopenwebsiteurl,
             "websiteurl":localStorage.websiteurl});
 
 
@@ -339,6 +357,12 @@ Ext.define('EqimPrj.controller.EqimMain', {
         });
 
     },
+    savestaticconfig:function(btn){
+        var form =btn.up('window').down('form');
+        localStorage.jopenwebsiteurl=form.getValues().jopenwebsiteurl;
+        localStorage.staticdays=form.getValues().staticdays;
+
+    },
     savesendmsgconfig:function(btn){
         var grid=btn.up('window').down('grid');
         var url='log/updateSendMsgConfig';
@@ -350,7 +374,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         localStorage.weibousername=form.getValues().weibousername;
         localStorage.weibopassword=form.getValues().weibopassword;
         localStorage.websiteurl=form.getValues().websiteurl;
-        localStorage.jopenwebsiteurl=form.getValues().jopenwebsiteurl;
+        //localStorage.jopenwebsiteurl=form.getValues().jopenwebsiteurl;
 
 
         var changed_data=store.getModifiedRecords();
@@ -847,7 +871,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             run: function(){
                //console.log(111);
                var time=new Date();
-               var starttime=Ext.Date.add(time,Ext.Date.HOUR,-5);
+               var starttime=Ext.Date.add(time,Ext.Date.DAY,(0-localStorage.staticdays));
                var year=time.getFullYear();
                var startMonth=starttime.getMonth()+1;
                 startMonth=startMonth<10?("0"+startMonth):startMonth;
@@ -1154,6 +1178,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     layoutfunc:function(panel){
         if(!localStorage.websiteurl)localStorage.websiteurl='http://www.zjdz.gov.cn/webservice/articleapi.asmx?op=QuickInsert' ;
         if(!localStorage.jopenwebsiteurl)localStorage.jopenwebsiteurl='http://10.33.5.103:8080/JOPENSWeb/cata/catalogListController' ;
+        if(!localStorage.staticdays)localStorage.staticdays=2;
         if(!localStorage.weibousername)localStorage.weibousername='liaolongshiwo@163.com';
         if(!localStorage.weibopassword)localStorage.weibopassword='long090909';
 

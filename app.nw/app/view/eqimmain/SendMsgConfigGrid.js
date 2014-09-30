@@ -1,7 +1,7 @@
 Ext.define('EqimPrj.view.eqimmain.SendMsgConfigGrid', {
     extend: 'Ext.grid.Panel',
     alias:'widget.sendmsgconfiggrid',
-    layout: 'fit',
+    //layout: 'fit',
     requires: [
     ],
     initComponent: function() {
@@ -21,7 +21,8 @@ Ext.define('EqimPrj.view.eqimmain.SendMsgConfigGrid', {
                 stripeRows: true*/
             },
             //selModel: selModel,
-            forceFit: true,
+            forceFit: false,
+            //autoScroll:true,
             columns: [
 
                 {header: '是否启用',  xtype : 'checkcolumn',dataIndex: 'is_active'
@@ -62,12 +63,12 @@ Ext.define('EqimPrj.view.eqimmain.SendMsgConfigGrid', {
                 }
 
             ],
-            bbar: Ext.create('Ext.PagingToolbar', {
+            /*bbar: Ext.create('Ext.PagingToolbar', {
                 store: 'eqimmain.SendMsgConfigs',
                 displayInfo: true,
                 displayMsg: '显示 {0} - {1}条记录,共 {2}条记录',
                 emptyMsg: "无记录"
-            }),
+            }),*/
             store: 'eqimmain.SendMsgConfigs'
         });
         me.callParent(arguments);

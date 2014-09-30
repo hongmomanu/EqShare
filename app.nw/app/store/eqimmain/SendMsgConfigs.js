@@ -2,7 +2,7 @@ Ext.define('EqimPrj.store.eqimmain.SendMsgConfigs', {
     extend: 'Ext.data.Store',
     model: 'EqimPrj.model.eqimmain.SendMsgConfig',
     autoLoad:true,
-    pageSize : 10,
+    pageSize : 100,
     proxy:{
         type: 'ajax',
         url: localStorage.serverurl+'log/getSendMsgConfig',
