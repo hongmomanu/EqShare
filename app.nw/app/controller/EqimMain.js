@@ -795,7 +795,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
                    store.add(data);
 
-                   me.mldata.push([new Date(data.time),data.M]);
+                   me.mldata.push([new Date(data.time),data.M+1]);
                    var autopiedata=me.updatepies(me.mldata);
                    Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').loadData(autopiedata);
                    me.updatecolumchart();
@@ -926,26 +926,26 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
        for(var i=0;i<data.length;i++){
-           if(data[i][1]<0){
+           if(data[i][1]-1<0){
                itemauto["<0级"]+=1;
-           }else if(data[i][1]<1){
+           }else if(data[i][1]-1<1){
                itemauto["0-1级"]+=1;
            }
-           else if(data[i][1]<2){
+           else if(data[i][1]-1<2){
                itemauto["1-2级"]+=1;
            }
-           else if(data[i][1]<3){
+           else if(data[i][1]-1<3){
                itemauto["2-3级"]+=1;
            }
-           else if(data[i][1]<4){
+           else if(data[i][1]-1<4){
                itemauto["3-4级"]+=1;
            }
-           else if(data[i][1]<5){
+           else if(data[i][1]-1<5){
                itemauto["4-5级"]+=1;
            }
-           else if(data[i][1]<6){
+           else if(data[i][1]-1<6){
                itemauto["5-6级"]+=1;
-           }else if(data[i][1]<7){
+           }else if(data[i][1]-1<7){
                itemauto["6-7级"]+=1;
            }else {
                itemauto[">7级"]+=1;
@@ -968,12 +968,15 @@ Ext.define('EqimPrj.controller.EqimMain', {
             for(var i=0;i<data.length;i++){
 
                 if(data[i][0]>this.mdata[this.mdata.length-1][0]){
-
+                    data[i][1]=data[i][1]+1;
                     result.push(data[i]);
                 }
             }
         }else{
-            result =data;
+            for(var i=0;i<data.length;i++){
+                  data[i][1]=data[i][1]+1;
+                  result.push(data[i]);
+            }
         }
        return result;
     },
@@ -1004,6 +1007,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
             return markings;
         }
         console.log(me.mdata);
+        function labelFormatter(v, axis) {
+
+            return (v-1).toFixed(1);
+        }
 
 
         var callback=function(data){
@@ -1024,8 +1031,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
                     ], {
                         series: {
                             shadowSize: 0,	// Drawing is faster without shadows
-                            //bars: {show: true},
-                            lines: {show: true},
+                            bars: {show: true},
+                            //lines: {show: true},
                             points: {
                                 show: true
                             }
@@ -1036,7 +1043,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
                             markings: weekendAreas,
                             clickable: true
                         },
-                        yaxis: {},
+                        yaxis: {tickFormatter: labelFormatter
+                            },
                         selection: {
                             mode: "x"
                         },
@@ -1049,9 +1057,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
                     me.plotcolumnoverview= $.plot("#earthquickcolumnchartoverview", [
                         { data: me.mdata, color: 'green' },{ data: me.mldata} ], {
                         series: {
+                            //bars: {show: true},
                             lines: {
-                                show: true/*,
-                                 lineWidth: 1*/
+                                show: true/**,
+                                 lineWidth: 1**/
                             },
                             shadowSize: 0
                         },
@@ -1063,7 +1072,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
                         },
                         yaxis: {
                             //ticks: [],
-                            //min: 0,
+                            tickFormatter: labelFormatter
+                            //min: -1
                             //autoscaleMargin: 0.1
                         },
                         selection: {
@@ -1109,7 +1119,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                             var x = item.datapoint[0],
                                 y = item.datapoint[1];
 
-                            $("#columntooltip").html("时间:" + Ext.Date.format(new Date(x),'Y-m-d H:i:s') + " <br>震级: " + y.toFixed(1))
+                            $("#columntooltip").html("时间:" + Ext.Date.format(new Date(x),'Y-m-d H:i:s') + " <br>震级: " + (y-1).toFixed(1))
                                 .css({top: item.pageY+5, left: item.pageX+5})
                                 .fadeIn(200);
                         } else {
