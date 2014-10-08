@@ -16,6 +16,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
          'eqimmain.QuicklistMenu',
          'eqimmain.EarthQuickAutoPieChart',
          'eqimmain.EarthQuickManuelPieChart',
+         'eqimmain.GroupConfigWin',
          'eqimmain.AddNewSendMsgWin',
          'eqimmain.EditSendMsgWin',
          'eqimmain.SendMsgUsersGrid',
@@ -78,8 +79,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
             'sendmsgusersgrid button[action=add]':{
                 click: this.showAddNewSendUsersWin
             },
+            'groupconfigwin button[action=save]':{
+                click: this.savegroupconfig
+            },
             'sendmsgusersgrid button[action=del]':{
                 click: this.delsenduser
+            },
+            'sendmsgusersgrid button[action=groupconfig]':{
+                click: this.showgroupconfigWin
             },
             'sendmsgusersgrid button[action=edit]':{
                 click: this.editsenduserwin
@@ -188,6 +195,20 @@ Ext.define('EqimPrj.controller.EqimMain', {
     showAddNewSendUsersWin:function(btn){
         if(!this.newsenduserwin)this.newsenduserwin= Ext.widget('addnewsenduserwin');
         this.newsenduserwin.show();
+
+    },
+    showgroupconfigWin:function(btn){
+        if(!this.groupconfigWin)this.groupconfigWin= Ext.widget('groupconfigwin');
+        this.groupconfigWin.show();
+
+        var form=this.groupconfigWin.down('form').getForm();
+        form.setValues({groupsvalue:localStorage.groupsvalue});
+
+    },
+    savegroupconfig:function(btn){
+        var form =btn.up('window').down('form');
+        localStorage.groupsvalue=form.getValues().groupsvalue;
+        Ext.Msg.alert("提示信息","保存成功!");
 
     },
 
@@ -361,6 +382,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var form =btn.up('window').down('form');
         localStorage.jopenwebsiteurl=form.getValues().jopenwebsiteurl;
         localStorage.staticdays=form.getValues().staticdays;
+
+        Ext.Msg.alert("提示信息","保存成功!");
+
 
     },
     savesendmsgconfig:function(btn){
@@ -678,9 +702,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(this.popupmarker)this.map.removeLayer(this.popupmarker);
         var marker=L.marker([data.lat,data.lon]).addTo(this.map)
             .bindPopup("<ul><li>发震时刻:"+data.time+"</li><li>地名:"
-                +data.location+"</li><li>震级:M"+ data.M+', Ml'
-            +data.Ml+', Ms'+ data.Ms+
-        "</li><li>深度:"+data.depth+"km</li></ul>").openPopup();
+                +data.location+"</li><li>震级:M"+ data.M.toFixed(1)+', Ml'
+            +data.Ml.toFixed(1)+', Ms'+ data.Ms.toFixed(1)+
+        "</li><li>深度:"+data.depth.toFixed(1)+"km</li></ul>").openPopup();
         this.popupmarker=marker;
 
     },
@@ -814,16 +838,23 @@ Ext.define('EqimPrj.controller.EqimMain', {
                if(data['location'].indexOf('测试')<0){
 
                    if(data.M==null)data.M=0;
+                   if(data.Ml==null)data.Ml=0;
+                   if(data.Ms==null)data.Ms=0;
                    if(data.lon==null)data.lon=0;
                    if(data.lat==null)data.lat=0;
 
                    store.add(data);
+                   if(!(data.M<-10)){
+                       me.mldata.push([new Date(data.time),data.M+1]);
 
-                   me.mldata.push([new Date(data.time),data.M+1]);
-                   var autopiedata=me.updatepies(me.mldata);
-                   Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').loadData(autopiedata);
-                   me.updatecolumchart();
+                       if(me.mldata.length>10000){
+                           me.mldata=me.mldata.slice(me.mldata.length-10000);
+                       }
 
+                       var autopiedata=me.updatepies(me.mldata);
+                       Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').loadData(autopiedata);
+                       me.updatecolumchart();
+                   }
                    //chart_store.add({"stime":new Date(data.time),"M1":data.M});
 
                    me.showMaplocation(data);
@@ -936,7 +967,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
             },
-            interval:100000
+            interval:1800000
         }
         Ext.TaskManager.start(checkdutytask);
     },
@@ -990,7 +1021,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var result=[];
         if(this.mdata.length>0){
             for(var i=0;i<data.length;i++){
-
+                if(data[i][1]<-10)continue;
                 if(data[i][0]>this.mdata[this.mdata.length-1][0]){
                     data[i][1]=data[i][1]+1;
                     result.push(data[i]);
@@ -998,6 +1029,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             }
         }else{
             for(var i=0;i<data.length;i++){
+                if(data[i][1]<-10)continue;
                   data[i][1]=data[i][1]+1;
                   result.push(data[i]);
             }
@@ -1042,6 +1074,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
             if(data.length>0){
 
                 me.mdata=me.mdata.concat(data);
+                if(me.mdata.length>10000){
+                    me.mdata=me.mdata.slice(me.mdata.length-10000);
+                }
 
                 var manupiedata=me.updatepies(me.mdata);
                 //var manudata=me.updatepies(me.mldata);
@@ -1181,6 +1216,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!localStorage.staticdays)localStorage.staticdays=2;
         if(!localStorage.weibousername)localStorage.weibousername='liaolongshiwo@163.com';
         if(!localStorage.weibopassword)localStorage.weibopassword='long090909';
+        if(!localStorage.groupsvalue)localStorage.groupsvalue='["浙江省地震台网中心"]';
 
 
        this.gridwebsocket(panel);

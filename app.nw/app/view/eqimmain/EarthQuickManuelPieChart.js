@@ -32,7 +32,8 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickManuelPieChart', {
                         store.each(function(rec) {
                             total += rec.get('data');
                         });
-                        this.setTitle(storeItem.get('name') + ': '+storeItem.get('data') + "("+Math.round(storeItem.get('data') / total * 100) + '%)');
+                        this.setTitle(storeItem.get('name') + ': '+storeItem.get('data') );   //
+                        //this.setTitle(storeItem.get('name') + ': '+storeItem.get('data') + "("+Math.round(storeItem.get('data') / total * 100) + '%)');
                     }
                 },
                 highlight: {

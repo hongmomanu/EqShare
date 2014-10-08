@@ -45,6 +45,10 @@ Ext.define('EqimPrj.view.eqimmain.SendMsgUsersGrid', {
                 {
                     text:'删除',
                     action:'del'
+                },
+                {
+                    text:'分组配置',
+                    action:'groupconfig'
                 }
 
             ],
