@@ -51,6 +51,11 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                             action:'openuserswin'
 
                         },
+                        {
+                            text:'消息模板配置',
+                            action:'openmsgtemplatewin'
+
+                        },
 
                         {
                             text:'关闭',

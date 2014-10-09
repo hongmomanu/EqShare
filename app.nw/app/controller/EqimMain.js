@@ -13,6 +13,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
          'eqimmain.ConfigWin',
          'eqimmain.LogListGrid',
          'eqimmain.StaticConfigWin',
+         'eqimmain.MsgTemplateWin',
          'eqimmain.QuicklistMenu',
          'eqimmain.EarthQuickAutoPieChart',
          'eqimmain.EarthQuickManuelPieChart',
@@ -118,6 +119,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             'mainpanel button[action=manualsend]':{
                 click: this.showmanualwin
             },
+
             'loglistgrid':{
 
                 afterrender:this.loglistgridrendered
@@ -134,6 +136,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
             },
             'mainpanel menuitem[action=refresh]':{
                 click: this.refreshwin
+            },
+            'mainpanel menuitem[action=openmsgtemplatewin]':{
+                click: this.showmsgtemplatewin
             },
             'mainpanel menuitem[action=close]':{
                 click: this.closewin
@@ -758,6 +763,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!this.manualsendmsgwin)this.manualsendmsgwin= Ext.widget('manualsendmsgwin');
         this.manualsendmsgwin.show();
 
+    },
+    showmsgtemplatewin:function(btn){
+        if(!this.msgtemplateWin)this.msgtemplateWin= Ext.widget('msgtemplatewin');
+        this.msgtemplateWin.show();
     },
     showUsersWin:function(btn){
 
