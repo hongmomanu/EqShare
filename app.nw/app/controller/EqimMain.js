@@ -23,6 +23,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
          'eqimmain.SendMsgUsersGrid',
          'eqimmain.AddNewSendUserWin',
          'eqimmain.EditSendUserWin',
+         'eqimmain.ManualSendMsgAutoWin',
          'eqimmain.ManualSendMsgWin',
          'eqimmain.EarthQuickColumnChart',
          'eqimmain.SendMsgConfigGrid'
@@ -68,7 +69,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 itemclick: this.showMap,
                 itemcontextmenu: this.showmanualwinwithdata
             },
-
+            'msgtemplatewin button[action=save]':{
+                click: this.savemsgtemplate
+            },
             'quicklistmenu > menuitem': {
                 click: this.quicklistmanager
             },
@@ -107,6 +110,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
             'manualsendmsgwin button[action=send]':{
                 click: this.manualsend
             },
+            'manualsendmsgautowin button[action=send]':{
+                click: this.manualautosend
+            },
             'mainpanel menuitem[action=configwin]':{
                 click: this.showServerWin
             },
@@ -125,6 +131,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 afterrender:this.loglistgridrendered
 
             },
+            'sendmsgconfiggrid':{
+                afterrender:this.sendmsggridrendered
+            },
 
             'mainpanel image': {
                 voiceclick: this.voiceclick,
@@ -133,6 +142,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
             'mainpanel panel': {
                 mapupdate: this.afterlayout
 
+            },
+            'manualsendmsgautowin combobox':{
+               onselectfunc:this.selectfunc
             },
             'mainpanel menuitem[action=refresh]':{
                 click: this.refreshwin
@@ -248,6 +260,49 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         form.setValues(item);
     },
+    manualautosend:function(btn){
+        var win=btn.up('window');
+        /*var content=this.contentFormat(item.parentMenu.data.data,"自动测定");
+         var form=this.manualsendmsgwin.down('form').getForm();
+         form.setValues({"content":content});
+         */
+        var content={};
+        var defaultcontent=this.contentFormatCustom(win.data,"自动测定",localStorage.defaulttemplatevalue);
+
+        var form=win.down('form').getForm();
+
+        var me=this;
+        if(form.isValid()){
+            var sendways=form.getValues().sendway;
+            if(!sendways||sendways.length==0){
+                Ext.Msg.alert("提示信息","请至少选择一个发送方式!");
+            }else{
+                var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"请等候..."});
+                myMask.show();
+                if(sendways.indexOf("0")>=0){
+                    var str=form.getValues().content;
+                    content[form.getValues().groups]=str;
+                    me.sendTelDetai(Ext.JSON.encode(content),function(){
+                        myMask.hide();
+                        me.makelog(str,"短信:");
+                    });
+                }if(sendways.indexOf("1")>=0){
+                    me.sendWeiBoDetai(defaultcontent,function(){
+                        myMask.hide();
+                        me.makelog(defaultcontent.content,"微博:");
+                    });
+                }
+                if(sendways.indexOf("2")>=0){
+                    //me.sendWebDetai(form.getValues().content);
+                    me.sendWeb(win.data,"自动测定",372);
+                    //me.sendWeb(me.sendWebDetai,"自动测定",372);
+                }
+            }
+        }else{
+            Ext.Msg.alert("提示信息","请填写发送内容!");
+        }
+
+    },
     manualsend:function(btn){
       var form=btn.up('window').down('form').getForm();
       var me=this;
@@ -259,7 +314,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
               var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"请等候..."});
               myMask.show();
               if(sendways.indexOf("0")>=0){
-                 me.sendTelDetai(form.getValues().content,function(){
+                  var item={};
+                  item[form.getValues().groups]=form.getValues().content;
+                 me.sendTelDetai(Ext.JSON.encode(item),function(){
                      myMask.hide();
                      me.makelog(form.getValues().content,"短信:");
                  });
@@ -393,6 +450,11 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
     },
+    savemsgtemplate:function(btn){
+        var form =btn.up('window').down('form');
+        localStorage[form.getValues().groups]=form.getValues().content;
+        Ext.Msg.alert("提示信息","保存成功!");
+    },
     savesendmsgconfig:function(btn){
         var grid=btn.up('window').down('grid');
         var url='log/updateSendMsgConfig';
@@ -452,11 +514,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
        this.showMaplocation(record.data);
     },
     quicklistmanager:function (item, e, eOpts) {
-        this.showmanualwin();
-        var content=this.contentFormat(item.parentMenu.data.data,"自动测定");
+        //this.showmanualwin();
+        if(!this.manualsendmsgautowin)this.manualsendmsgautowin= Ext.widget('manualsendmsgautowin');
+        this.manualsendmsgautowin.show();
+        this.manualsendmsgautowin.data=item.parentMenu.data.data;
+        /*var content=this.contentFormat(item.parentMenu.data.data,"自动测定");
         var form=this.manualsendmsgwin.down('form').getForm();
         form.setValues({"content":content});
-
+*/
     },
     showmanualwinwithdata:function (panelView, record, item, index, e, eOpts) {
 
@@ -481,6 +546,41 @@ Ext.define('EqimPrj.controller.EqimMain', {
         }
 
        return  iscontain;
+    },
+    getFormatTemp:function(){
+       var template='{0}:{1}月{2}日{3}时{4}分{5}附近（{6}度，{7}度）发生{8}级左右地震，最终结果以正式速报为准。' ;
+       return template;
+    },
+    contentFormatCustom:function(data,type,format){
+        var content ="";
+        var code_name="";
+        var time=new Date(data.time);
+
+        if(data.code=="AU"){
+            code_name="国家地震台网中心"+type ;
+        }else if(data.code=="GD"){
+            code_name="国家地震速报备份中心"+type ;
+        }else if(data.code=="FJ"){
+            code_name="东南区域中心"+type ;
+        }else if(data.code=="ZD"){
+            code_name="浙江定位系统"+type ;
+        }else if(data.code=="ZC"){
+            code_name="浙江测震台网"+type ;
+        }
+        else{
+            code_name=data.code+type ;
+        }
+        //var template='{0}:{1}月{2}日{3}时{4}分{5}附近（{6}度，{7}度）发生{8}级左右地震，最终结果以正式速报为准。' ;
+        return Ext.String.format(format,
+            code_name,
+            (time.getMonth()+1),
+            (time.getDate()),
+            (time.getHours()<10?"0"+time.getHours():time.getHours()),
+            (time.getMinutes()<10?"0"+time.getMinutes():time.getMinutes()),
+            data.location,
+            (data.lat>=0?"北纬":"南纬")+Math.abs(data.lat).toFixed(1),
+            (data.lon>=0?"东经":"西经")+Math.abs(data.lon).toFixed(1),
+            data.M.toFixed(1));
     },
     contentFormat:function(data,type){
       var content ="";
@@ -523,14 +623,31 @@ Ext.define('EqimPrj.controller.EqimMain', {
         CommonFunc.ajaxSend(item, url, successFunc, failFunc, "post");
 
     },
-    sendTel:function(data,type){
+    sendTel:function(data,type,groups){
         console.log("TEL");
         var me=this;
-        var content=this.contentFormat(data,type);
+
+        var content={};
+        var groupsarr=[];
+        if(groups)groupsarr=groups.split(",") ;
+
+        for(var i=0;i<groupsarr.length;i++){
+            content[groupsarr[i]]=me.contentFormatCustom(data,type,localStorage[groupsarr[i]]);
+        }
+        if(groupsarr.length==0){
+           /*var arr=eval(localStorage.groupsvalue);
+           for(var i=0;i<arr.length;i++){
+               content[arr[i]]=me.contentFormatCustom(data,type,localStorage[arr[i]]);
+           }*/
+            Ext.Msg.alert("提示信息","短信未选择用户组");
+           return;
+        }
+        //content["default"]=me.contentFormatCustom(data,type,localStorage.defaulttemplatevalue);
+        //this.contentFormat(data,type);
         var callback=function(){
-            me.makelog(content,"短信:");
+            me.makelog(content["default"],"短信:");
         };
-        this.sendTelDetai(content,callback);
+        this.sendTelDetai(Ext.JSON.encode(content),callback);
 
     },
     makelog:function(content,header){
@@ -597,7 +714,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     sendWeb:function(data,type,cid){
         console.log("wangye"+cid);
-        var content=this.contentFormat(data,type);
+        //var content=this.contentFormat(data,type);
+        var content=this.contentFormatCustom(data,type,localStorage.defaulttemplatevalue);
         var time=new Date(data.time);
         var title=Ext.Date.format(time,'m月d日H时i分')+data.location+"发生"+data.M.toFixed(1)+"级左右地震。";
         var me=this;
@@ -663,7 +781,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
     sendWeiBo:function(data,type){
         console.log("weibo");
         var me=this;
-        var content=this.contentFormat(data,type);
+        //var content=this.contentFormat(data,type);
+        var content=this.contentFormatCustom(data,type,localStorage.defaulttemplatevalue);
         var callback=function(){
 
             me.makelog(content,"微博:");
@@ -684,15 +803,15 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 && this.isplacein(data.location, filterdata[i].epicenter)
                 ){
                  if(filterdata[i].sendmethod.indexOf(0)>=0){
-                     this.sendTel(data,"自动测定");
+                     this.sendTel(data,"自动测定",filterdata[i].groups);
 
                  }
                 if(filterdata[i].sendmethod.indexOf(1)>=0){
-                     this.sendWeiBo(data,"自动测定");
+                     this.sendWeiBo(data,"自动测定",filterdata[i].groups);
 
                  }
                 if(filterdata[i].sendmethod.indexOf(2)>=0){
-                     this.sendWeb(data,"自动测定",371);
+                     this.sendWeb(data,"自动测定",371,filterdata[i].groups);
                      //this.sendWeb(data,"自动测定",372);
                  }
 
@@ -741,6 +860,21 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
       if(this.closevoice_state)this.closevoice_state=false;
        else this.closevoice_state=true;
+    },
+    sendmsggridrendered:function(grid,e){
+        var view = grid.getView();
+
+        var tip = Ext.create('Ext.tip.ToolTip', {
+            target: view.el,
+            delegate: view.itemSelector,
+            trackMouse: true,
+            //renderTo: Ext.getBody(),
+            listeners: {
+                beforeshow: function updateTipBody(tip) {
+                    tip.update(view.getRecord(tip.triggerElement).get('groups'))
+                }
+            }
+        });
     },
     loglistgridrendered:function(grid,e){
         var view = grid.getView();
@@ -800,6 +934,15 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
             }
         });
+    },
+    selectfunc:function(rec,comb){
+        var win=comb.up('window');
+        console.log(rec.getValue());
+
+       if(!localStorage[rec.getValue()])localStorage[rec.getValue()]=localStorage.defaulttemplatevalue;
+       rec.up('window').down('#content').setValue(this.contentFormatCustom(win.data,"自动测定",localStorage[rec.getValue()]));
+
+
     },
     afterlayout:function(panel){
         testobj=this;
@@ -1227,6 +1370,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!localStorage.weibousername)localStorage.weibousername='liaolongshiwo@163.com';
         if(!localStorage.weibopassword)localStorage.weibopassword='long090909';
         if(!localStorage.groupsvalue)localStorage.groupsvalue='["浙江省地震台网中心"]';
+        if(!localStorage.defaulttemplatevalue)localStorage.defaulttemplatevalue=this.getFormatTemp();
 
 
        this.gridwebsocket(panel);

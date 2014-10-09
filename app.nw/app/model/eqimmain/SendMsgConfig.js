@@ -35,6 +35,9 @@ Ext.define('EqimPrj.model.eqimmain.SendMsgConfig', {
         {
             name: 'time',
             type:'string'
+        },{
+            name: 'groups',
+            type:'string'
         }
 
 

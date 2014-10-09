@@ -11,18 +11,16 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgWin' ,{
         var required = '<span style="color:red;font-weight:bold" data-qtip="必填字段">*</span>';
         Ext.apply(this, {
             title: '新增',
-            height: 300,
-            width: 360,
+            height: 350,
+            width: 460,
             closeAction : 'hide',
             modal:true,
             resizable:false,
             layout: 'fit',
             items: {
                 xtype: 'form',
-
                 layout: {
                     type: 'vbox',
-
                     align: 'stretch'
                 },
                 border: false,
@@ -74,6 +72,27 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgWin' ,{
                                 inputValue: '2'
                             }*/
                         ]
+                    },{
+                        xtype: 'combobox',
+                        required:true,
+                        allowBlank:false,
+                        multiSelect: false,
+                        afterLabelTextTpl: required,
+                        store:Ext.create('Ext.data.Store', {
+                            fields: ['value', 'name'],
+                            data : (function (){
+                                var arr=eval(localStorage.groupsvalue);
+                                var result=[];
+                                for(var i=0;i<arr.length;i++){
+                                    result.push({name:arr[i],value:arr[i]});
+                                }
+                                return result;
+                            })()
+                        }),
+                        valueField: 'value',
+                        displayField: 'name',
+                        fieldLabel: '分组',
+                        name: 'groups'
                     }
 
                 ],

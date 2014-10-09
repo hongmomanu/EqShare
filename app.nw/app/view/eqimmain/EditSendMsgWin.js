@@ -123,6 +123,27 @@ Ext.define('EqimPrj.view.eqimmain.EditSendMsgWin' ,{
                         displayField: 'name',
                         fieldLabel: '发送方式',
                         name: 'sendmethod'
+                    },{
+                        xtype: 'combobox',
+                        required:true,
+                        allowBlank:false,
+                        multiSelect: true,
+                        afterLabelTextTpl: required,
+                        store:Ext.create('Ext.data.Store', {
+                            fields: ['value', 'name'],
+                            data : (function (){
+                                var arr=eval(localStorage.groupsvalue);
+                                var result=[];
+                                for(var i=0;i<arr.length;i++){
+                                    result.push({name:arr[i],value:arr[i]});
+                                }
+                                return result;
+                            })()
+                        }),
+                        valueField: 'value',
+                        displayField: 'name',
+                        fieldLabel: '分组',
+                        name: 'groups'
                     }
 
                 ],

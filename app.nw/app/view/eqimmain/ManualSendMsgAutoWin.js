@@ -2,27 +2,25 @@
  * Created by jack on 14-9-22.
  */
 
-Ext.define('EqimPrj.view.eqimmain.MsgTemplateWin' ,{
+Ext.define('EqimPrj.view.eqimmain.ManualSendMsgAutoWin' ,{
     extend: 'Ext.window.Window',
-    alias : 'widget.msgtemplatewin',
+    alias : 'widget.manualsendmsgautowin',
     requires: [
     ],
     initComponent: function() {
         var required = '<span style="color:red;font-weight:bold" data-qtip="必填字段">*</span>';
         Ext.apply(this, {
-            title: '模板配置',
-            height: 300,
-            width: 360,
+            title: '新增',
+            height: 350,
+            width: 460,
             closeAction : 'hide',
             modal:true,
             resizable:false,
             layout: 'fit',
             items: {
                 xtype: 'form',
-
                 layout: {
                     type: 'vbox',
-
                     align: 'stretch'
                 },
                 border: false,
@@ -44,10 +42,38 @@ Ext.define('EqimPrj.view.eqimmain.MsgTemplateWin' ,{
                         required:true,
                         allowBlank:false,
                         afterLabelTextTpl: required,
-                        fieldLabel: '模板内容'
+                        fieldLabel: '发送内容'
                     },
                     {
+                        xtype:'fieldset',
+                        title: '发送方式',
+                        layout: {
+                            type: 'hbox'
+                        },
+                        items:[
+                            {
+                                xtype:'checkbox',
+                                boxLabel: '短信',
 
+                                checked: true,
+                                name: 'sendway',
+                                inputValue: '0'
+                            }, {
+                                xtype:'checkbox',
+                                boxLabel: '微博',
+
+                                checked: true,
+                                name: 'sendway',
+                                inputValue: '1'
+                            }, {
+                                xtype:'checkbox',
+                                checked: true,
+                                boxLabel: '网站',
+                                name: 'sendway',
+                                inputValue: '2'
+                            }
+                        ]
+                    },{
                         xtype: 'combobox',
                         required:true,
                         allowBlank:false,
@@ -55,8 +81,8 @@ Ext.define('EqimPrj.view.eqimmain.MsgTemplateWin' ,{
                         afterLabelTextTpl: required,
                         listeners:{
                             'select': function (rec){
-                               if(!localStorage[rec.getValue()])localStorage[rec.getValue()]=localStorage.defaulttemplatevalue;
-                               rec.up('window').down('#content').setValue(localStorage[rec.getValue()]);
+                                this.fireEvent('onselectfunc', rec,this)
+
                             }
                         },
                         store:Ext.create('Ext.data.Store', {
@@ -67,15 +93,13 @@ Ext.define('EqimPrj.view.eqimmain.MsgTemplateWin' ,{
                                 for(var i=0;i<arr.length;i++){
                                     result.push({name:arr[i],value:arr[i]});
                                 }
-                                result.push({name:"默认模板",value:"defaulttemplatevalue"});
                                 return result;
                             })()
                         }),
                         valueField: 'value',
                         displayField: 'name',
-                        fieldLabel: '模板类型',
+                        fieldLabel: '分组',
                         name: 'groups'
-
                     }
 
                 ],
@@ -87,8 +111,8 @@ Ext.define('EqimPrj.view.eqimmain.MsgTemplateWin' ,{
                         }
                     } ,
                     {
-                        text: '保存',
-                        action: 'save'
+                        text: '发送',
+                        action: 'send'
 
                     }
                 ],
