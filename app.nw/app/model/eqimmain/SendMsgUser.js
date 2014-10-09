@@ -16,6 +16,10 @@ Ext.define('EqimPrj.model.eqimmain.SendMsgUser', {
         {
             name: 'tel',
             type:'string'
+        },
+        {
+            name: 'groups',
+            type:'string'
         }
 
 

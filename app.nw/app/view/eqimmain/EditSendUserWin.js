@@ -11,8 +11,8 @@ Ext.define('EqimPrj.view.eqimmain.EditSendUserWin' ,{
         var required = '<span style="color:red;font-weight:bold" data-qtip="必填字段">*</span>';
         Ext.apply(this, {
             title: '编辑',
-            height: 200,
-            width: 300,
+            height: 250,
+            width: 400,
             closeAction : 'hide',
             modal:true,
             resizable:false,
@@ -60,6 +60,28 @@ Ext.define('EqimPrj.view.eqimmain.EditSendUserWin' ,{
                         afterLabelTextTpl: required,
                         name: 'tel',
                         fieldLabel: '手机号'
+                    },
+                    {
+                        xtype: 'combobox',
+                        required:true,
+                        allowBlank:false,
+                        multiSelect: true,
+                        afterLabelTextTpl: required,
+                        store:Ext.create('Ext.data.Store', {
+                            fields: ['value', 'name'],
+                            data : (function (){
+                                var arr=eval(localStorage.groupsvalue);
+                                var result=[];
+                                for(var i=0;i<arr.length;i++){
+                                    result.push({name:arr[i],value:arr[i]});
+                                }
+                                return result;
+                            })()
+                        }),
+                        valueField: 'value',
+                        displayField: 'name',
+                        fieldLabel: '分组',
+                        name: 'groups'
                     }
                 ],
                 buttons: [

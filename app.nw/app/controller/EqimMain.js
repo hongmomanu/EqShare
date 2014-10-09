@@ -222,6 +222,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         this.myeditsenduserwin.show();
 
         var item=selectitem.data;
+        item.groups=item.groups.split(",");
         var form=this.myeditsenduserwin.down('form').getForm();
         form.setValues(item);
     },
@@ -296,7 +297,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             grid.getSelectionModel().deselectAll();
         };
         var failFunc = function (form, action) {
-            Ext.Msg.alert("提示信息",action.result.msg);
+            Ext.Msg.alert("提示信息","fail,server error");
         };
         var form = btn.up('form');
         CommonFunc.formSubmit(form,{},url,successFunc,failFunc,"正在提交。。。")
@@ -763,9 +764,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!this.userwin){
             var win=Ext.create('Ext.window.Window', {
                 title: '人员配置',
-                height: 200,
+                height: 230,
                 closeAction : 'hide',
-                width: 400,
+                width: 550,
                 layout: 'fit',
                 items: {  // Let's put an empty grid in just to illustrate fit layout
                     xtype: 'sendmsgusersgrid'

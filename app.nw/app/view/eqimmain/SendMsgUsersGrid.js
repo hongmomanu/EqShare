@@ -27,7 +27,18 @@ Ext.define('EqimPrj.view.eqimmain.SendMsgUsersGrid', {
 
                 {header: '是否启用',   dataIndex: 'id',hidden:true},
                 {header: '姓名',dataIndex: 'username',width:60},
-                {header: '手机',dataIndex: 'tel',width:120}
+                {header: '手机',dataIndex: 'tel',width:120},
+                {header: '分组',dataIndex: 'groups',flex:1,renderer : function(v,m,r) {
+
+                    var str="";
+                    var arr=eval(localStorage.groupsvalue);
+                    for(var i=0;i<arr.length;i++){
+                        if(v.indexOf(arr[i])>=0){
+                            str+=" "+arr[i];
+                        }
+                    }
+                    return str;
+                }}
 
             ],
 
