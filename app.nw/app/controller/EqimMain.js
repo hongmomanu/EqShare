@@ -39,6 +39,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
           'eqimmain.SendMsgConfigs',
           'eqimmain.EarthQuickColumnCharts',
           'eqimmain.EarthQuickAutoPieCharts',
+          'eqimmain.EarthQuickList',
           'eqimmain.EarthQuickManuelPieCharts',
           'eqimmain.SendMsgUsers'
     ],
@@ -518,6 +519,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!this.manualsendmsgautowin)this.manualsendmsgautowin= Ext.widget('manualsendmsgautowin');
         this.manualsendmsgautowin.show();
         this.manualsendmsgautowin.data=item.parentMenu.data.data;
+        var groupscomb=this.manualsendmsgautowin.down('#groupscomb');
+        //alert(1);
+        groupscomb.select(groupscomb.getStore().getAt('0'));
         /*var content=this.contentFormat(item.parentMenu.data.data,"自动测定");
         var form=this.manualsendmsgwin.down('form').getForm();
         form.setValues({"content":content});
@@ -1051,11 +1055,15 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
     },
     getJopenSweb:function(callback){
+        var me=this;
         var checkdutytask={
             run: function(){
                //console.log(111);
                var time=new Date();
-               var starttime=Ext.Date.add(time,Ext.Date.DAY,(0-localStorage.staticdays));
+                var starttime=null;
+               if(me.isjopenSwebInited)starttime=Ext.Date.add(time,Ext.Date.HOUR,-1);
+               else starttime=Ext.Date.add(time,Ext.Date.DAY,(0-localStorage.staticdays));
+
                var year=time.getFullYear();
                var startMonth=starttime.getMonth()+1;
                 startMonth=startMonth<10?("0"+startMonth):startMonth;
@@ -1077,7 +1085,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 var url='log/loggetjopensdata';
 
                 var successFunc = function (res) {
-                    console.log(res);
+                    me.isjopenSwebInited=true;
                     var res = Ext.JSON.decode(res.responseText);
                     var html= $(res.msg);
                     //testhtml=html;
@@ -1087,11 +1095,15 @@ Ext.define('EqimPrj.controller.EqimMain', {
                         for(var i=2;i<finder.length;i++){
                             var finderobj=$(finder[i]).find("i");
                             var m=eval(finderobj.eq(5).text());
+                            var location =finderobj.eq(1).text();
+                            var lon =eval(finderobj.eq(3).text());
+                            var lat =eval(finderobj.eq(2).text());
+                            var depth=eval(finderobj.eq(4).text());
                             var date=finderobj.eq(0).text().split(".")[1].substring(0,20);
                             //var store=Ext.StoreMgr.get('eqimmain.EarthQuickColumnCharts');
                             //store.add({stime:new Date(date),M:m});
                             //console.log({stime:new Date(date),M:m});
-                            data.push([new Date(date),m]);
+                            data.push([new Date(date),m,location,lon,lat,depth]);
 
                         }
                         callback(data);
@@ -1120,7 +1132,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
             },
-            interval:1800000
+            interval:60000
         }
         Ext.TaskManager.start(checkdutytask);
     },
@@ -1225,6 +1237,20 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var callback=function(data){
             data=me.filtermanueldata(data);
             if(data.length>0){
+                for(var i=0;i<data.length;i++){
+                    var item={
+                        time:Ext.Date.format(new Date(data[i][0]),'Y-m-d H:i:s'),
+                        location:data[i][2],
+                        lon:data[i][3],
+                        lat:data[i][4],
+                        M:data[i][1],
+                        cname:'浙江测震台网',
+                        code:'ZC',
+                        depth:data[i][5]
+                    };
+                    Ext.StoreMgr.get('eqimmain.EarthQuickList').add(item);
+
+                }
 
                 me.mdata=me.mdata.concat(data);
                 if(me.mdata.length>10000){

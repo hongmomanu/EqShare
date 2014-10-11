@@ -67,7 +67,7 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgAutoWin' ,{
                                 inputValue: '1'
                             }, {
                                 xtype:'checkbox',
-                                checked: true,
+                                checked: false,
                                 boxLabel: '网站',
                                 name: 'sendway',
                                 inputValue: '2'
@@ -77,16 +77,21 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgAutoWin' ,{
                         xtype: 'combobox',
                         required:true,
                         allowBlank:false,
-                        multiSelect: false,
+                        itemId:'groupscomb',
+                        queryMode: 'local',
+                        /*multiSelect: false,
+                        autoSelect:true,*/
+                        forceSelection:true,
                         afterLabelTextTpl: required,
                         listeners:{
-                            'select': function (rec){
+                            'change': function (rec){
                                 this.fireEvent('onselectfunc', rec,this)
 
                             }
                         },
                         store:Ext.create('Ext.data.Store', {
                             fields: ['value', 'name'],
+                            autoLoad: true,
                             data : (function (){
                                 var arr=eval(localStorage.groupsvalue);
                                 var result=[];
