@@ -66,6 +66,7 @@ Ext.define('EqimPrj.view.eqimmain.EditSendUserWin' ,{
                         required:true,
                         allowBlank:false,
                         multiSelect: true,
+                        itemId:'groupscomb',
                         afterLabelTextTpl: required,
                         store:Ext.create('Ext.data.Store', {
                             fields: ['value', 'name'],

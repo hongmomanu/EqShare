@@ -51,6 +51,7 @@ Ext.define('EqimPrj.view.eqimmain.MsgTemplateWin' ,{
                         xtype: 'combobox',
                         required:true,
                         allowBlank:false,
+                        itemId:'groupscomb',
                         multiSelect: false,
                         afterLabelTextTpl: required,
                         listeners:{

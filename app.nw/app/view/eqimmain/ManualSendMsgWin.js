@@ -77,6 +77,7 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgWin' ,{
                         required:true,
                         allowBlank:false,
                         multiSelect: false,
+                        itemId:'groupscomb',
                         afterLabelTextTpl: required,
                         store:Ext.create('Ext.data.Store', {
                             fields: ['value', 'name'],

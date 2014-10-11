@@ -239,10 +239,27 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!this.myeditsenduserwin)this.myeditsenduserwin= Ext.widget('editsenduserwin');
         this.myeditsenduserwin.show();
 
+        var groupscomb=this.myeditsenduserwin.down('#groupscomb');
+        groupscomb.getStore().loadData((function (){
+            var arr=eval(localStorage.groupsvalue);
+            var result=[];
+            for(var i=0;i<arr.length;i++){
+                result.push({name:arr[i],value:arr[i]});
+            }
+            return result;
+        })());
+
+
+
         var item=selectitem.data;
-        item.groups=item.groups.split(",");
+        console.log(item);
+        var grps=item.groups.split(",");
+        item.groups=grps.length>1?grps:item.groups;
         var form=this.myeditsenduserwin.down('form').getForm();
         form.setValues(item);
+
+
+
     },
     editsendmsgwin:function(btn){
 
@@ -268,8 +285,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
          form.setValues({"content":content});
          */
         var content={};
-        var defaultcontent=this.contentFormatCustom(win.data,"自动测定",localStorage.defaulttemplatevalue);
 
+        var defaultcontent=this.contentFormatCustom(win.data,"",localStorage.defaulttemplatevalue);
+        console.log(defaultcontent)
+        console.log(win.data);
         var form=win.down('form').getForm();
 
         var me=this;
@@ -290,7 +309,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 }if(sendways.indexOf("1")>=0){
                     me.sendWeiBoDetai(defaultcontent,function(){
                         myMask.hide();
-                        me.makelog(defaultcontent.content,"微博:");
+                        me.makelog(defaultcontent,"微博:");
                     });
                 }
                 if(sendways.indexOf("2")>=0){
@@ -343,6 +362,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             var grid=me.userwin.down('grid');
             btn.up('window').close();
             grid.getStore().load();
+            grid.getSelectionModel().deselectAll();
         };
         var failFunc = function (form, action) {
             Ext.Msg.alert("提示信息",action.result.msg);
@@ -522,6 +542,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var groupscomb=this.manualsendmsgautowin.down('#groupscomb');
         //alert(1);
         groupscomb.select(groupscomb.getStore().getAt('0'));
+        groupscomb.getStore().loadData((function (){
+            var arr=eval(localStorage.groupsvalue);
+            var result=[];
+            for(var i=0;i<arr.length;i++){
+                result.push({name:arr[i],value:arr[i]});
+            }
+            return result;
+        })());
         /*var content=this.contentFormat(item.parentMenu.data.data,"自动测定");
         var form=this.manualsendmsgwin.down('form').getForm();
         form.setValues({"content":content});
@@ -900,11 +928,30 @@ Ext.define('EqimPrj.controller.EqimMain', {
         //testobj=this;
         if(!this.manualsendmsgwin)this.manualsendmsgwin= Ext.widget('manualsendmsgwin');
         this.manualsendmsgwin.show();
+        var groupscomb=this.manualsendmsgwin.down('#groupscomb');
+        groupscomb.getStore().loadData((function (){
+            var arr=eval(localStorage.groupsvalue);
+            var result=[];
+            for(var i=0;i<arr.length;i++){
+                result.push({name:arr[i],value:arr[i]});
+            }
+            return result;
+        })());
 
     },
     showmsgtemplatewin:function(btn){
         if(!this.msgtemplateWin)this.msgtemplateWin= Ext.widget('msgtemplatewin');
         this.msgtemplateWin.show();
+        var groupscomb=this.msgtemplateWin.down('#groupscomb');
+        groupscomb.getStore().loadData((function (){
+            var arr=eval(localStorage.groupsvalue);
+            var result=[];
+            for(var i=0;i<arr.length;i++){
+                result.push({name:arr[i],value:arr[i]});
+            }
+            return result;
+        })());
+
     },
     showUsersWin:function(btn){
 
