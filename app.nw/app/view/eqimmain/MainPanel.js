@@ -99,7 +99,7 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                 '-',
                 {
                     xtype: 'image' ,
-                    src:localStorage.serverurl+'images/play.png',
+                    src:localStorage.serverurl+'images/pause.png',
                     height:20,
                     overCls:'overhand',
                     listeners: {

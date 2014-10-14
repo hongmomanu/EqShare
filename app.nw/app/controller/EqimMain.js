@@ -167,7 +167,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
     },
     closevoice_state:true,
-    sendmessag_state:false,
+    sendmessag_state:true,
     closewin:function(btn){
         Ext.MessageBox.confirm('提示', '你确定关闭程序么?', function(btn){
             if(btn=="yes"){
@@ -287,8 +287,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var content={};
 
         var defaultcontent=this.contentFormatCustom(win.data,"",localStorage.defaulttemplatevalue);
-        console.log(defaultcontent)
-        console.log(win.data);
+
+        //console.log(win.titlecontent);
         var form=win.down('form').getForm();
 
         var me=this;
@@ -314,7 +314,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 }
                 if(sendways.indexOf("2")>=0){
                     //me.sendWebDetai(form.getValues().content);
-                    me.sendWeb(win.data,"自动测定",372);
+                    myMask.hide();
+                    var title=form.getValues().title;
+                    me.sendWeb(win.data,"自动测定",372,localStorage.webmanualtemplatevalue,title);
                     //me.sendWeb(me.sendWebDetai,"自动测定",372);
                 }
             }
@@ -538,7 +540,11 @@ Ext.define('EqimPrj.controller.EqimMain', {
         //this.showmanualwin();
         if(!this.manualsendmsgautowin)this.manualsendmsgautowin= Ext.widget('manualsendmsgautowin');
         this.manualsendmsgautowin.show();
+
+        var form=this.manualsendmsgautowin.down('form').getForm();
+        form.reset();
         this.manualsendmsgautowin.data=item.parentMenu.data.data;
+        //this.manualsendmsgautowin.titlecontent=null;
         var groupscomb=this.manualsendmsgautowin.down('#groupscomb');
         //alert(1);
         groupscomb.select(groupscomb.getStore().getAt('0'));
@@ -581,6 +587,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     getFormatTemp:function(){
        var template='{0}:{1}月{2}日{3}时{4}分{5}附近（{6}度，{7}度）发生{8}级左右地震，最终结果以正式速报为准。' ;
+       return template;
+    },
+    getFormatTemp1:function(){
+       var template='据我省数字地震台网中心测定:{1}月{2}日{3}时{4}分{5}附近（{6}度，{7}度）发生{8}级左右地震，最终结果以正式速报为准。' ;
        return template;
     },
     contentFormatCustom:function(data,type,format){
@@ -677,7 +687,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         //content["default"]=me.contentFormatCustom(data,type,localStorage.defaulttemplatevalue);
         //this.contentFormat(data,type);
         var callback=function(){
-            me.makelog(content["default"],"短信:");
+            me.makelog(content[groupsarr[0]],"短信:");
         };
         this.sendTelDetai(Ext.JSON.encode(content),callback);
 
@@ -705,7 +715,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     sendWebDetai:function(content,callback){
         if(localStorage.websiteurl){
-            var url='log/sendsoap';
+            var url='log/sendsoapss';
             var successFunc = function (form, action) {
                 if(callback)callback();
                 Ext.Msg.alert("提示信息","网页发布成功");
@@ -744,12 +754,12 @@ Ext.define('EqimPrj.controller.EqimMain', {
         this.sendWebDetai(itemcontent);
 
     },
-    sendWeb:function(data,type,cid){
+    sendWeb:function(data,type,cid,format,title){
         console.log("wangye"+cid);
         //var content=this.contentFormat(data,type);
-        var content=this.contentFormatCustom(data,type,localStorage.defaulttemplatevalue);
+        var content=this.contentFormatCustom(data,type,format);
         var time=new Date(data.time);
-        var title=Ext.Date.format(time,'m月d日H时i分')+data.location+"发生"+data.M.toFixed(1)+"级左右地震。";
+        title=title?title:(Ext.Date.format(time,'m月d日H时i分')+data.location+"发生"+data.M.toFixed(1)+"级左右地震。");
         var me=this;
         var itemcontent='<?xml version="1.0" encoding="utf-8"?>'+
             '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">'
@@ -843,7 +853,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
                  }
                 if(filterdata[i].sendmethod.indexOf(2)>=0){
-                     this.sendWeb(data,"自动测定",371,filterdata[i].groups);
+                     this.sendWeb(data,"自动测定",371,localStorage.defaulttemplatevalue);
                      //this.sendWeb(data,"自动测定",372);
                  }
 
@@ -949,6 +959,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
             for(var i=0;i<arr.length;i++){
                 result.push({name:arr[i],value:arr[i]});
             }
+            result.push({name:"默认模板",value:"defaulttemplatevalue"});
+            result.push({name:"网页模板",value:"webmanualtemplatevalue"});
             return result;
         })());
 
@@ -1108,7 +1120,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                //console.log(111);
                var time=new Date();
                 var starttime=null;
-               if(me.isjopenSwebInited)starttime=Ext.Date.add(time,Ext.Date.HOUR,-1);
+               if(me.isjopenSwebInited)starttime=me.mdata.length==0?new Date():(me.mdata[me.mdata.length-1][0]);
                else starttime=Ext.Date.add(time,Ext.Date.DAY,(0-localStorage.staticdays));
 
                var year=time.getFullYear();
@@ -1290,7 +1302,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
                         location:data[i][2],
                         lon:data[i][3],
                         lat:data[i][4],
-                        M:data[i][1],
+                        M:data[i][1]-1,
+                        stime:Ext.Date.format(new Date(),'Y-m-d H:i:s'),
                         cname:'浙江测震台网',
                         code:'ZC',
                         depth:data[i][5]
@@ -1321,6 +1334,11 @@ Ext.define('EqimPrj.controller.EqimMain', {
                             points: {
                                 show: true
                             }
+
+                        },
+                        legend: {
+                            show: true,
+                            position: "nw"
 
                         },
                         grid: {
@@ -1355,6 +1373,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                             mode: "time",
                             timezone: "browser"
                         },
+
                         yaxis: {
                             //ticks: [],
                             tickFormatter: labelFormatter
@@ -1442,8 +1461,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!localStorage.staticdays)localStorage.staticdays=2;
         if(!localStorage.weibousername)localStorage.weibousername='liaolongshiwo@163.com';
         if(!localStorage.weibopassword)localStorage.weibopassword='long090909';
-        if(!localStorage.groupsvalue)localStorage.groupsvalue='["浙江省地震台网中心"]';
+        if(!localStorage.groupsvalue)localStorage.groupsvalue='["99999A","99999B","应急通讯试机","全局会议","自动速报AU"]';
         if(!localStorage.defaulttemplatevalue)localStorage.defaulttemplatevalue=this.getFormatTemp();
+        if(!localStorage.webmanualtemplatevalue)localStorage.webmanualtemplatevalue=this.getFormatTemp1();
 
 
        this.gridwebsocket(panel);

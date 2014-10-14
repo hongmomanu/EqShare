@@ -69,6 +69,8 @@ Ext.define('EqimPrj.view.eqimmain.MsgTemplateWin' ,{
                                     result.push({name:arr[i],value:arr[i]});
                                 }
                                 result.push({name:"默认模板",value:"defaulttemplatevalue"});
+                                result.push({name:"网页模板",value:"webmanualtemplatevalue"});
+
                                 return result;
                             })()
                         }),

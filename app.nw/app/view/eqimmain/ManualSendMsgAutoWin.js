@@ -11,7 +11,7 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgAutoWin' ,{
         var required = '<span style="color:red;font-weight:bold" data-qtip="必填字段">*</span>';
         Ext.apply(this, {
             title: '新增',
-            height: 350,
+            height: 370,
             width: 460,
             closeAction : 'hide',
             modal:true,
@@ -36,6 +36,15 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgAutoWin' ,{
                 items: [
 
                     {
+                        xtype: 'textfield',
+                        name: 'title',
+                        itemId:'title',
+                        required:true,
+                        allowBlank:false,
+                        disabled:true,
+                        afterLabelTextTpl: required,
+                        fieldLabel: '发送内容'
+                    },{
                         xtype: 'textarea',
                         name: 'content',
                         itemId:'content',
@@ -68,6 +77,24 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgAutoWin' ,{
                             }, {
                                 xtype:'checkbox',
                                 checked: false,
+                                listeners: {
+                                    change:function(obj,v){
+                                        var win=obj.up('window');
+                                        var title=win.down('#title');
+                                        var data=win.data;
+                                        var titlecontent=Ext.Date.format(new Date(data.time),'m月d日H时i分')+data.location+"发生"+data.M.toFixed(1)+"级左右地震。";
+
+                                        title.setValue(titlecontent);
+                                        //win.titlecontent=titlecontent;
+                                        if(v){
+
+                                           title.enable();
+                                        }else{
+                                            title.disable();
+                                        }
+
+                                    }
+                                },
                                 boxLabel: '网站',
                                 name: 'sendway',
                                 inputValue: '2'

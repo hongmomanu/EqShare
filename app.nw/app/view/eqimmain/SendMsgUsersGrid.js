@@ -22,27 +22,7 @@ Ext.define('EqimPrj.view.eqimmain.SendMsgUsersGrid', {
             },
             //selModel: selModel,
             forceFit: true,
-            tbar:[
 
-                {
-                 xtype:'textfield',
-                 emptyText:'搜索..',
-                 listeners: {
-                     "specialkey": function (field, e) {
-                             if (e.keyCode == 13) {
-                                 var keyword = field.getValue().replace(/\s+/g, "");
-                                 var panel=this.up('panel');
-                                 var store=panel.getStore();
-                                 store.proxy.extraParams.keyword = keyword;
-                                 store.loadPage(1);
-                                 panel.getSelectionModel().deselectAll();
-
-                            }
-                        }
-                     }
-                 }
-
-            ],
             columns: [
 
 
@@ -81,7 +61,25 @@ Ext.define('EqimPrj.view.eqimmain.SendMsgUsersGrid', {
                 {
                     text:'分组配置',
                     action:'groupconfig'
+                },
+                {
+                    xtype:'textfield',
+                    emptyText:'搜索..',
+                    listeners: {
+                        "specialkey": function (field, e) {
+                            if (e.keyCode == 13) {
+                                var keyword = field.getValue().replace(/\s+/g, "");
+                                var panel=this.up('panel');
+                                var store=panel.getStore();
+                                store.proxy.extraParams.keyword = keyword;
+                                store.loadPage(1);
+                                panel.getSelectionModel().deselectAll();
+
+                            }
+                        }
+                    }
                 }
+
 
             ],
             bbar: Ext.create('Ext.PagingToolbar', {
