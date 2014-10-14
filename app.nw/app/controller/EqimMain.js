@@ -188,6 +188,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var form =this.staticconfigwin.down('form').getForm();
 
         form.setValues({"staticdays":localStorage.staticdays,
+            "isautostatic":localStorage.isautostatic,
             "jopenwebsiteurl":localStorage.jopenwebsiteurl
             });
     },
@@ -468,6 +469,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var form =btn.up('window').down('form');
         localStorage.jopenwebsiteurl=form.getValues().jopenwebsiteurl;
         localStorage.staticdays=form.getValues().staticdays;
+        localStorage.isautostatic=form.getValues().isautostatic;
 
         Ext.Msg.alert("提示信息","保存成功!");
 
@@ -1069,7 +1071,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
                        var autopiedata=me.updatepies(me.mldata);
                        Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').loadData(autopiedata);
-                       me.updatecolumchart();
+                       if(localStorage.isautostatic)me.updatecolumchart();
                    }
                    //chart_store.add({"stime":new Date(data.time),"M1":data.M});
 
@@ -1459,6 +1461,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!localStorage.websiteurl)localStorage.websiteurl='http://www.zjdz.gov.cn/webservice/articleapi.asmx?op=QuickInsert' ;
         if(!localStorage.jopenwebsiteurl)localStorage.jopenwebsiteurl='http://10.33.5.103:8080/JOPENSWeb/cata/catalogListController' ;
         if(!localStorage.staticdays)localStorage.staticdays=2;
+        if(!localStorage.isautostatic)localStorage.isautostatic=true;
         if(!localStorage.weibousername)localStorage.weibousername='liaolongshiwo@163.com';
         if(!localStorage.weibopassword)localStorage.weibopassword='long090909';
         if(!localStorage.groupsvalue)localStorage.groupsvalue='["99999A","99999B","应急通讯试机","全局会议","自动速报AU"]';

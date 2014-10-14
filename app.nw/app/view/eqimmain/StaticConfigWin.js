@@ -15,7 +15,7 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
         var required = '<span style="color:red;font-weight:bold" data-qtip="必填字段">*</span>';
         Ext.apply(this, {
             title: '统计配置',
-            height: 510,
+            height: 310,
             width: 720,
             closeAction : 'hide',
             modal:true,
@@ -61,6 +61,24 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
                                 allowBlank:false,
                                 afterLabelTextTpl: required,
                                 name: 'staticdays'
+                            },
+                            {
+                                xtype:'checkbox',
+                                checked: false,
+                                listeners: {
+                                    change:function(obj,v){
+
+                                        if(v){
+
+                                        }else{
+
+                                        }
+
+                                    }
+                                },
+                                boxLabel: '是否启用自动速报',
+                                name: 'isautostatic',
+                                inputValue: '2'
                             }
                         ]
                     }
