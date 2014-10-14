@@ -715,7 +715,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     sendWebDetai:function(content,callback){
         if(localStorage.websiteurl){
-            var url='log/sendsoapss';
+            var url='log/sendsoap';
             var successFunc = function (form, action) {
                 if(callback)callback();
                 Ext.Msg.alert("提示信息","网页发布成功");
