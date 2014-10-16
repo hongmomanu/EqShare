@@ -14,8 +14,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
          'eqimmain.LogListGrid',
          'eqimmain.StaticConfigWin',
          'eqimmain.MsgTemplateWin',
+         'eqimmain.StaticQueryWin',
          'eqimmain.QuicklistMenu',
          'eqimmain.EarthQuickAutoPieChart',
+         'eqimmain.EarthQuickStaticPieChart',
          'eqimmain.EarthQuickManuelPieChart',
          'eqimmain.GroupConfigWin',
          'eqimmain.AddNewSendMsgWin',
@@ -39,6 +41,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
           'eqimmain.SendMsgConfigs',
           'eqimmain.EarthQuickColumnCharts',
           'eqimmain.EarthQuickAutoPieCharts',
+          'eqimmain.EarthQuickStaticPieCharts',
           'eqimmain.EarthQuickList',
           'eqimmain.EarthQuickManuelPieCharts',
           'eqimmain.SendMsgUsers'
@@ -161,6 +164,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
             },
             'mainpanel menuitem[action=openstaticconfigwin]':{
                 click: this.openstaticconfigwin
+            },
+            'mainpanel menuitem[action=openstaticquerywin]':{
+                click: this.openstaticquerywin
             }
 
         });
@@ -191,6 +197,13 @@ Ext.define('EqimPrj.controller.EqimMain', {
             "isautostatic":localStorage.isautostatic,
             "jopenwebsiteurl":localStorage.jopenwebsiteurl
             });
+    },
+    openstaticquerywin:function(btn){
+        if(!this.staticquerywin){
+            this.staticquerywin= Ext.widget('staticquerywin');
+        }
+        this.staticquerywin.show();
+
     },
     openconfigwin:function(btn){
         if(!this.configwin){
@@ -624,7 +637,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
             data.location,
             (data.lat>=0?"北纬":"南纬")+Math.abs(data.lat).toFixed(1),
             (data.lon>=0?"东经":"西经")+Math.abs(data.lon).toFixed(1),
-            data.M.toFixed(1));
+            data.M.toFixed(1),
+            (time.getSeconds()<10?"0"+time.getSeconds():time.getSeconds()),
+            time.getFullYear()
+        );
     },
     contentFormat:function(data,type){
       var content ="";
@@ -1002,7 +1018,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     selectfunc:function(rec,comb){
         var win=comb.up('window');
-        console.log(rec.getValue());
+        //console.log(rec.getValue());
 
        if(!localStorage[rec.getValue()])localStorage[rec.getValue()]=localStorage.defaulttemplatevalue;
        rec.up('window').down('#content').setValue(this.contentFormatCustom(win.data,"自动测定",localStorage[rec.getValue()]));
@@ -1115,6 +1131,76 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
     },
+
+    getJopenajax:function(starttime,endtime,callback){
+        var time=endtime;
+        var year=time.getFullYear();
+        var startMonth=starttime.getMonth()+1;
+        startMonth=startMonth<10?("0"+startMonth):startMonth;
+        var startDay=starttime.getDate();
+        startDay=startDay<10?("0"+startDay):startDay;
+
+        var startHour=starttime.getHours();
+        startHour=startHour<10?("0"+startHour):startHour;
+
+        var stopMonth=time.getMonth()+1;
+        stopMonth=stopMonth<10?("0"+stopMonth):stopMonth;
+
+        var stopDay=time.getDate();
+        stopDay=stopDay<10?("0"+stopDay):stopDay;
+
+        var stopHour=time.getHours()+1;
+        stopHour=stopHour<10?("0"+stopHour):stopHour;
+
+        var url='log/loggetjopensdata';
+
+        var successFunc = function (res) {
+            //me.isjopenSwebInited=true;
+            var res = Ext.JSON.decode(res.responseText);
+            var html= $(res.msg);
+            //testhtml=html;
+            var finder=html.find('table[border$=1]').find('tr');
+            if(finder.length>2){
+                var data=[];
+                for(var i=2;i<finder.length;i++){
+                    var finderobj=$(finder[i]).find("i");
+                    var m=eval(finderobj.eq(5).text());
+                    var location =finderobj.eq(1).text();
+                    var lon =eval(finderobj.eq(3).text());
+                    var lat =eval(finderobj.eq(2).text());
+                    var depth=eval(finderobj.eq(4).text());
+                    var date=finderobj.eq(0).text().split(".")[1].substring(0,20);
+                    //var store=Ext.StoreMgr.get('eqimmain.EarthQuickColumnCharts');
+                    //store.add({stime:new Date(date),M:m});
+                    //console.log({stime:new Date(date),M:m});
+                    data.push([new Date(date),m,location,lon,lat,depth]);
+
+                }
+                callback(data);
+
+            }
+
+        };
+        var failFunc = function (form, action) {
+            Ext.Msg.alert("提示信息","获取服务失败,请查看服务是否异常!");
+        };
+
+        var item={
+            url:localStorage.jopenwebsiteurl,
+            startYear:year,
+            startMonth:startMonth,
+            startDay:startDay,
+            startHour:startHour,
+            stopMonth:stopMonth,
+            stopDay:stopDay,
+            stopHour:stopHour,
+            stopYear:year
+
+        };
+        CommonFunc.ajaxSend(item, url, successFunc, failFunc, "get");
+
+
+    },
     getJopenSweb:function(callback){
         var me=this;
         var checkdutytask={
@@ -1125,72 +1211,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                if(me.isjopenSwebInited)starttime=me.mdata.length==0?new Date():(me.mdata[me.mdata.length-1][0]);
                else starttime=Ext.Date.add(time,Ext.Date.DAY,(0-localStorage.staticdays));
 
-               var year=time.getFullYear();
-               var startMonth=starttime.getMonth()+1;
-                startMonth=startMonth<10?("0"+startMonth):startMonth;
-               var startDay=starttime.getDate();
-                startDay=startDay<10?("0"+startDay):startDay;
-
-               var startHour=starttime.getHours();
-                startHour=startHour<10?("0"+startHour):startHour;
-
-                var stopMonth=time.getMonth()+1;
-                stopMonth=stopMonth<10?("0"+stopMonth):stopMonth;
-
-               var stopDay=time.getDate();
-                stopDay=stopDay<10?("0"+stopDay):stopDay;
-
-               var stopHour=time.getHours()+1;
-               stopHour=stopHour<10?("0"+stopHour):stopHour;
-
-                var url='log/loggetjopensdata';
-
-                var successFunc = function (res) {
-                    me.isjopenSwebInited=true;
-                    var res = Ext.JSON.decode(res.responseText);
-                    var html= $(res.msg);
-                    //testhtml=html;
-                    var finder=html.find('table[border$=1]').find('tr');
-                    if(finder.length>2){
-                        var data=[];
-                        for(var i=2;i<finder.length;i++){
-                            var finderobj=$(finder[i]).find("i");
-                            var m=eval(finderobj.eq(5).text());
-                            var location =finderobj.eq(1).text();
-                            var lon =eval(finderobj.eq(3).text());
-                            var lat =eval(finderobj.eq(2).text());
-                            var depth=eval(finderobj.eq(4).text());
-                            var date=finderobj.eq(0).text().split(".")[1].substring(0,20);
-                            //var store=Ext.StoreMgr.get('eqimmain.EarthQuickColumnCharts');
-                            //store.add({stime:new Date(date),M:m});
-                            //console.log({stime:new Date(date),M:m});
-                            data.push([new Date(date),m,location,lon,lat,depth]);
-
-                        }
-                        callback(data);
-
-                    }
-
-                };
-                var failFunc = function (form, action) {
-                    Ext.Msg.alert("提示信息","获取服务失败,请查看服务是否异常!");
-                };
-
-                var item={
-                    url:localStorage.jopenwebsiteurl,
-                    startYear:year,
-                    startMonth:startMonth,
-                    startDay:startDay,
-                    startHour:startHour,
-                    stopMonth:stopMonth,
-                    stopDay:stopDay,
-                    stopHour:stopHour,
-                    stopYear:year
-
-                };
-                CommonFunc.ajaxSend(item, url, successFunc, failFunc, "get");
-
-
+                me.getJopenajax(starttime,time,callback)
 
             },
             interval:60000
@@ -1296,6 +1317,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
         var callback=function(data){
+            me.isjopenSwebInited=true;
             data=me.filtermanueldata(data);
             if(data.length>0){
                 for(var i=0;i<data.length;i++){
@@ -1325,6 +1347,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 //Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').add(autopiedata);
 
                 if(!me.plotcolumn){
+                    Ext.StoreMgr.get('eqimmain.EarthQuickStaticPieCharts').loadData(manupiedata);
                     me.plotcolumn = $.plot("#earthquickcolumnchart", [
                         { label: "JOPENSWeb", data: me.mdata, color: 'green' },
                         { data: me.mldata, label: "自动速报" }

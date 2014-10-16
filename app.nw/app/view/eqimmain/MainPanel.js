@@ -45,6 +45,11 @@ Ext.define('EqimPrj.view.eqimmain.MainPanel', {
                             action:'openstaticconfigwin'
 
                         },
+                        {
+                            text:'统计查询',
+                            action:'openstaticquerywin'
+
+                        },
 
                         {
                             text:'短信人员配置',
