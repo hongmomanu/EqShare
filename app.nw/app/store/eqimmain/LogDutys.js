@@ -13,6 +13,7 @@ Ext.define('EqimPrj.store.eqimmain.LogDutys', {
         },
         reader: {
             type: 'json',
+
             root: 'results',
             totalProperty: 'totalCount'
         }
