@@ -66,6 +66,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
             'staticconfigwin button[action=save]':{
                 click: this.savestaticconfig
             },
+            'staticquerywin button[action=querystatic]':{
+                click: this.querystaticfunc
+            },
             'addnewsendmsgwin button[action=add]':{
                 click: this.addnewsendmsg
             },
@@ -477,6 +480,22 @@ Ext.define('EqimPrj.controller.EqimMain', {
             }
         });
 
+    },
+    querystaticfunc:function(btn){
+        var panel=btn.up('panel');
+        var me=this;
+        //var store=panel.getStore();
+        var bgday=panel.down('#bgday').getValue();
+        var edday=panel.down('#edday').getValue();
+
+        var starttime=new Date(bgday);
+        var edtime=new Date(edday);
+        var callback=function(){
+            var manupiedata=me.updatepies(me.mdata,0);
+            //var manudata=me.updatepies(me.mldata);
+            Ext.StoreMgr.get('eqimmain.EarthQuickStaticPieCharts').loadData(manupiedata);
+        }
+        this.getJopenajax(starttime,edtime,callback)
     },
     savestaticconfig:function(btn){
         var form =btn.up('window').down('form');
@@ -1085,7 +1104,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                            me.mldata=me.mldata.slice(me.mldata.length-10000);
                        }
 
-                       var autopiedata=me.updatepies(me.mldata);
+                       var autopiedata=me.updatepies(me.mldata,1);
                        Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').loadData(autopiedata);
                        if(localStorage.isautostatic)me.updatecolumchart();
                    }
@@ -1220,7 +1239,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     mldata:[],
     mdata:[],
-    updatepies:function(data){
+    updatepies:function(data,step){
 
        var itemauto={"<0级":0,"0-1级":0,"1-2级":0,"2-3级":0,"3-4级":0,
             "4-5级":0, "5-6级":0,"6-7级":0,">7级":0
@@ -1228,26 +1247,26 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
        for(var i=0;i<data.length;i++){
-           if(data[i][1]-1<0){
+           if(data[i][1]-step<0){
                itemauto["<0级"]+=1;
-           }else if(data[i][1]-1<1){
+           }else if(data[i][1]-step<1){
                itemauto["0-1级"]+=1;
            }
-           else if(data[i][1]-1<2){
+           else if(data[i][1]-step<2){
                itemauto["1-2级"]+=1;
            }
-           else if(data[i][1]-1<3){
+           else if(data[i][1]-step<3){
                itemauto["2-3级"]+=1;
            }
-           else if(data[i][1]-1<4){
+           else if(data[i][1]-step<4){
                itemauto["3-4级"]+=1;
            }
-           else if(data[i][1]-1<5){
+           else if(data[i][1]-step<5){
                itemauto["4-5级"]+=1;
            }
-           else if(data[i][1]-1<6){
+           else if(data[i][1]-step<6){
                itemauto["5-6级"]+=1;
-           }else if(data[i][1]-1<7){
+           }else if(data[i][1]-step<7){
                itemauto["6-7级"]+=1;
            }else {
                itemauto[">7级"]+=1;
@@ -1341,7 +1360,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                     me.mdata=me.mdata.slice(me.mdata.length-10000);
                 }
 
-                var manupiedata=me.updatepies(me.mdata);
+                var manupiedata=me.updatepies(me.mdata,1);
                 //var manudata=me.updatepies(me.mldata);
                 Ext.StoreMgr.get('eqimmain.EarthQuickManuelPieCharts').loadData(manupiedata);
                 //Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').add(autopiedata);

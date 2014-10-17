@@ -27,7 +27,7 @@ Ext.define('EqimPrj.view.eqimmain.StaticQueryWin' ,{
                     xtype:'datefield',
                     width:120,
                     itemId:'bgday',
-                    value: Ext.Date.add(new Date(), (0-Ext.Date.DAY, localStorage.staticdays)),
+                    value: Ext.Date.add(new Date(), Ext.Date.DAY,(0-localStorage.staticdays)),
 
                     name: 'bgday'
                 },{
@@ -40,16 +40,8 @@ Ext.define('EqimPrj.view.eqimmain.StaticQueryWin' ,{
                 },{
                     xtype:'button',
                     text:'搜索',
-                    handler: function() {
-                        var panel=this.up('panel');
-                        var store=panel.getStore();
-                        var bgday=panel.down('#bgday').getValue();
-                        var edday=panel.down('#edday').getValue();
+                    action:'querystatic'
 
-                        store.proxy.extraParams.bgday = Ext.Date.format(new Date(bgday),'Y-m-d');
-                        store.proxy.extraParams.edday = edday;
-                        store.loadPage(1);
-                    }
                     //action:'search'
                 }
 
