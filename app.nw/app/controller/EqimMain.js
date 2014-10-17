@@ -490,8 +490,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         var starttime=new Date(bgday);
         var edtime=new Date(edday);
-        var callback=function(){
-            var manupiedata=me.updatepies(me.mdata,0);
+        var callback=function(data){
+            var manupiedata=me.updatepies(data,0);
             //var manudata=me.updatepies(me.mldata);
             Ext.StoreMgr.get('eqimmain.EarthQuickStaticPieCharts').loadData(manupiedata);
         }
