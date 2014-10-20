@@ -15,7 +15,7 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
         var required = '<span style="color:red;font-weight:bold" data-qtip="必填字段">*</span>';
         Ext.apply(this, {
             title: '统计配置',
-            height: 310,
+            height: 350,
             width: 720,
             closeAction : 'hide',
             modal:true,
@@ -29,7 +29,7 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
 
                 fieldDefaults: {
                     labelAlign: 'left',
-                    labelWidth: 100,
+                    labelWidth: 120,
                     labelStyle: 'font-weight:bold'
                 },
                 items: [
@@ -61,6 +61,46 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
                                 allowBlank:false,
                                 afterLabelTextTpl: required,
                                 name: 'staticdays'
+                            },
+                            {
+                                xtype:'datefield',
+                                width:120,
+                                fieldLabel: '自动统计开始日期',
+                                format:'Y-m-d',
+                                //itemId:'bgday',
+                                //value: Ext.Date.add(new Date(), Ext.Date.DAY, -30),
+
+                                name: 'staticautobeginday'
+                            },
+                            {
+                                xtype:'timefield',
+                                width:120,
+                                fieldLabel: '自动统计开始时间',
+                                format:'H:i',
+                                increment:60,
+                                //value: 12,
+
+                                name: 'staticautobeginhour'
+                            },
+                            {
+                                xtype:'timefield',
+                                width:120,
+                                fieldLabel: '自动统计结束时间',
+                                format:'H:i',
+                                increment:60,
+                                //value: 12,
+
+                                name: 'staticautoendhour'
+                            },
+                            {
+                                xtype:'timefield',
+                                width:120,
+                                fieldLabel: '自动统计检查时间',
+                                format:'H:i',
+                                increment:60,
+                                //value: 12,
+
+                                name: 'staticautocheckhour'
                             },
                             {
                                 xtype:'checkbox',

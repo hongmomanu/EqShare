@@ -198,6 +198,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         form.setValues({"staticdays":localStorage.staticdays,
             "isautostatic":localStorage.isautostatic,
+            "staticautobeginday":localStorage.staticautobeginday,
+            "staticautocheckhour":localStorage.staticautocheckhour,
+            "staticautoendhour":localStorage.staticautoendhour,
+            "staticautobeginhour":localStorage.staticautobeginhour,
             "jopenwebsiteurl":localStorage.jopenwebsiteurl
             });
     },
@@ -501,6 +505,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var form =btn.up('window').down('form');
         localStorage.jopenwebsiteurl=form.getValues().jopenwebsiteurl;
         localStorage.staticdays=form.getValues().staticdays;
+        localStorage.staticautobeginday=form.getValues().staticautobeginday;
+        localStorage.staticautocheckhour=form.getValues().staticautocheckhour;
+        localStorage.staticautoendhour=form.getValues().staticautoendhour;
+        localStorage.staticautobeginhour=form.getValues().staticautobeginhour;
         localStorage.isautostatic=form.getValues().isautostatic;
 
         Ext.Msg.alert("提示信息","保存成功!");
@@ -1499,10 +1507,76 @@ Ext.define('EqimPrj.controller.EqimMain', {
         this.plotcolumnoverview.draw();
         this.plotcolumn.draw();
     },
+    staticcheckdetail:function(){
+        var me=this;
+        var starttime=new Date(localStorage.staticautobeginday+" "+localStorage.staticautobeginhour);
+        var endtime=new Date(Ext.Date.format(new Date(),'Y-m-d')+" "+localStorage.staticautoendhour);
+
+        var callback=function(data){
+            var manupiedata=me.updatepies(data,0);
+            //console.log(manupiedata);
+            me.isstaticchecked=true;
+            var ab0=0;
+            var ab3=0;
+            var ab4=0;
+            for(var i=0;i<manupiedata.length;i++){
+                var name=manupiedata[i].name.replace("<","").replace(">","").substring(0,1);
+                if(name>=0){
+                    ab0+=manupiedata[i].data;
+                }
+                if(name>=3){
+                    ab3+=manupiedata[i].data;
+                }
+                if(name>=4){
+                    ab4+=manupiedata[i].data;
+                }
+
+
+            }
+            var str="统计开始日期:"+Ext.Date.format(starttime,'Y-m-d H:i:s')+",统计结束时间:"
+                +Ext.Date.format(endtime,'Y-m-d H:i:s') +"<br>"
+                +"M0级以上（个）:"+ab0+"<br>"
+                +"M3级以上（个）:"+ab3+"<br>"
+                +"M4级以上（个）:"+ab4+"<br>"
+            me.makelog(str,"震级统计:");
+            //var manudata=me.updatepies(me.mldata);
+            //Ext.StoreMgr.get('eqimmain.EarthQuickStaticPieCharts').loadData(manupiedata);
+        };
+
+        me.getJopenajax(starttime,endtime,callback);
+
+
+    },
+    initautostaticcheck:function(){
+        var me=this;
+        this.checkday=(new Date()).getDay();
+        this.isstaticchecked=false;
+
+        var checkdutytask={
+            run: function(){
+                //console.log(111);
+                if((new Date()).getDay()!=me.checkday){
+                    me.isstaticchecked=false;
+                }
+                if((!me.isstaticchecked)&&(parseInt(localStorage.staticautocheckhour.split(":")[0])<=(new Date()).getHours())){
+                    me.staticcheckdetail();
+                }
+
+
+
+            },
+            interval:60000
+        }
+        Ext.TaskManager.start(checkdutytask);
+    },
     layoutfunc:function(panel){
         if(!localStorage.websiteurl)localStorage.websiteurl='http://www.zjdz.gov.cn/webservice/articleapi.asmx?op=QuickInsert' ;
         if(!localStorage.jopenwebsiteurl)localStorage.jopenwebsiteurl='http://10.33.5.103:8080/JOPENSWeb/cata/catalogListController' ;
         if(!localStorage.staticdays)localStorage.staticdays=2;
+        if(!localStorage.staticautobeginday)localStorage.staticautobeginday=Ext.Date.format(Ext.Date.add(new Date(), Ext.Date.DAY, -30),'Y-m-d');
+        if(!localStorage.staticautobeginhour)localStorage.staticautobeginhour="12:00";
+        if(!localStorage.staticautoendhour)localStorage.staticautoendhour="08:00";
+        if(!localStorage.staticautocheckhour)localStorage.staticautocheckhour="10:00";
         if(!localStorage.isautostatic)localStorage.isautostatic=true;
         if(!localStorage.weibousername)localStorage.weibousername='liaolongshiwo@163.com';
         if(!localStorage.weibopassword)localStorage.weibopassword='long090909';
@@ -1510,7 +1584,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!localStorage.defaulttemplatevalue)localStorage.defaulttemplatevalue=this.getFormatTemp();
         if(!localStorage.webmanualtemplatevalue)localStorage.webmanualtemplatevalue=this.getFormatTemp1();
 
-
+       this.initautostaticcheck();
        this.gridwebsocket(panel);
        this.initcolumnchart();
        var me=this;
