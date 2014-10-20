@@ -497,6 +497,29 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var callback=function(data){
             var manupiedata=me.updatepies(data,0);
             //var manudata=me.updatepies(me.mldata);
+            var ab0=0;
+            var ab3=0;
+            var ab4=0;
+            for(var i=0;i<manupiedata.length;i++){
+                var name=manupiedata[i].name.replace("<","").replace(">","").substring(0,1);
+                if(name>=0){
+                    ab0+=manupiedata[i].data;
+                }
+                if(name>=3){
+                    ab3+=manupiedata[i].data;
+                }
+                if(name>=4){
+                    ab4+=manupiedata[i].data;
+                }
+
+
+            }
+            var str="统计开始日期:"+Ext.Date.format(starttime,'Y-m-d H:i:s')+",统计结束时间:"
+                +Ext.Date.format(edtime,'Y-m-d H:i:s') +"<br>"
+                +"M0级以上（个）:"+ab0+"<br>"
+                +"M3级以上（个）:"+ab3+"<br>"
+                +"M4级以上（个）:"+ab4+"<br>"
+            me.makelog(str,"震级统计:");
             Ext.StoreMgr.get('eqimmain.EarthQuickStaticPieCharts').loadData(manupiedata);
         }
         this.getJopenajax(starttime,edtime,callback)
@@ -1557,6 +1580,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 //console.log(111);
                 if((new Date()).getDay()!=me.checkday){
                     me.isstaticchecked=false;
+                    me.checkday=(new Date()).getDay();
                 }
                 if((!me.isstaticchecked)&&(parseInt(localStorage.staticautocheckhour.split(":")[0])<=(new Date()).getHours())){
                     me.staticcheckdetail();

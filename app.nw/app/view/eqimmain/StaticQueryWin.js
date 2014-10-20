@@ -52,12 +52,8 @@ Ext.define('EqimPrj.view.eqimmain.StaticQueryWin' ,{
                     handler: function () {
                         this.up('window').hide();
                     }
-                } ,
-                {
-                    text: '保存',
-                    action: 'save'
-
                 }
+
             ],
             items: {
                 xtype: 'earthquickstaticpiechart',
