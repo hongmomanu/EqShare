@@ -1148,7 +1148,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
                        var autopiedata=me.updatepies(me.mldata,1);
                        Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').loadData(autopiedata);
-                       if(localStorage.isautostatic)me.updatecolumchart();
+                       if(localStorage.isautostatic==1)me.updatecolumchart();
                    }
                    //chart_store.add({"stime":new Date(data.time),"M1":data.M});
 
@@ -1546,57 +1546,57 @@ Ext.define('EqimPrj.controller.EqimMain', {
         this.plotcolumn.draw();
     },
     staticcheckdetail:function(){
-        console.log(22222222222222222);
         var me=this;
         var starttime=new Date(localStorage.staticautobeginday+" "+localStorage.staticautobeginhour);
         var endtime=new Date(Ext.Date.format(new Date(),'Y-m-d')+" "+localStorage.staticautoendhour);
 
-        var starttimeday=Ext.Date.format(Ext.Date.add(new Date(), Ext.Date.DAY, -1),'Y-m-d');
+        var starttimeday=new Date(Ext.Date.format(Ext.Date.add(new Date(), Ext.Date.DAY, -1),'Y-m-d'));
         var endtimeday=starttimeday;
+        var callbackdetal=function(stime,etime,isall){
+            console.log(66664444444);
+            return  function(data){
+                var manupiedata=me.updatepies(data,0);
+                //me.isstaticchecked=true;
+                var ab0=0;
+                var ab3=0;
+                var ab4=0;
+                for(var i=0;i<manupiedata.length;i++){
 
-        var callback=function(data){
-            var manupiedata=me.updatepies(data,0);
-            //console.log(manupiedata);
-            me.isstaticchecked=true;
-            var ab0=0;
-            var ab3=0;
-            var ab4=0;
-            for(var i=0;i<manupiedata.length;i++){
+                    var name=manupiedata[i].name.replace("<","").replace(">","").substring(0,1);
+                    if(name>=0){
+                        ab0+=manupiedata[i].data;
+                    }
+                    if(name>=3){
+                        ab3+=manupiedata[i].data;
+                    }
+                    if(name>=4){
+                        ab4+=manupiedata[i].data;
+                    }
 
-                var name=manupiedata[i].name.replace("<","").replace(">","").substring(0,1);
-                if(name>=0){
-                    ab0+=manupiedata[i].data;
+
                 }
-                if(name>=3){
-                    ab3+=manupiedata[i].data;
+                var maxobj=[0,0];
+                for(var i=0;i<data.length;i++){
+                    if(data[i][1]>maxobj[1]){
+                        maxobj=data[i];
+                    }
                 }
-                if(name>=4){
-                    ab4+=manupiedata[i].data;
-                }
+                var str="";
+                if(isall)str=Ext.Date.format(stime,'Y-m-d')+"全天统计:<br>"
+                else str="统计开始日期:"+Ext.Date.format(stime,'Y-m-d H:i:s')+"<br>统计结束时间:"
+                    +Ext.Date.format(etime,'Y-m-d H:i:s') +"<br>" ;
+                str+="M0级以上（个）:"+ab0+"<br>"
+                    +"M3级以上（个）:"+ab3+"<br>"
+                    +"M4级以上（个）:"+ab4+"<br>"
+                    +"最大震级时刻:"+Ext.Date.format(new Date(maxobj[0]),'Y-m-d H:i:s')+"<br>"
+                    +"最大震级:<b>"+maxobj[1].toFixed(1)+"<b>级<br>"
 
+                me.makelog(str,"震级统计:");
+        }
+        }
 
-            }
-            var maxobj=[0,0];
-            for(var i=0;i<data.length;i++){
-                if(data[i][1]>maxobj[1]){
-                    maxobj=data[i];
-                }
-            }
-            var str="统计开始日期:"+Ext.Date.format(starttime,'Y-m-d H:i:s')+"<br>统计结束时间:"
-                +Ext.Date.format(endtime,'Y-m-d H:i:s') +"<br>"
-                +"M0级以上（个）:"+ab0+"<br>"
-                +"M3级以上（个）:"+ab3+"<br>"
-                +"M4级以上（个）:"+ab4+"<br>"
-                +"最大震级时刻:"+Ext.Date.format(new Date(maxobj[0]),'Y-m-d H:i:s')+"<br>"
-                +"最大震级:<b>"+maxobj[1].toFixed(1)+"<b>级<br>"
-
-            me.makelog(str,"震级统计:");
-            //var manudata=me.updatepies(me.mldata);
-            //Ext.StoreMgr.get('eqimmain.EarthQuickStaticPieCharts').loadData(manupiedata);
-        };
-
-        me.getJopenajax(starttime,endtime,false,callback);
-        me.getJopenajax(starttimeday,endtimeday,true,callback);
+        me.getJopenajax(starttime,endtime,false,callbackdetal(starttime,endtime));
+        me.getJopenajax(starttimeday,endtimeday,true,callbackdetal(starttimeday,endtimeday,true));
 
 
     },
@@ -1607,7 +1607,6 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         var checkdutytask={
             run: function(){
-                console.log(11122222222222222);
                 if((new Date()).getDay()!=me.checkday){
                     me.isstaticchecked=false;
                     me.checkday=(new Date()).getDay();
@@ -1615,6 +1614,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 if((!me.isstaticchecked)&&(parseInt(localStorage.staticautocheckhour.split(":")[0])<=(new Date()).getHours())){
 
                     me.staticcheckdetail();
+                    me.isstaticchecked=true;
                 }
 
 

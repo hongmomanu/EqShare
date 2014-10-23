@@ -127,7 +127,7 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
                                 },
                                 boxLabel: '是否启用自动速报',
                                 name: 'isautostatic',
-                                inputValue: '2'
+                                inputValue: 1
                             }
                         ]
                     }
