@@ -27,17 +27,39 @@ Ext.define('EqimPrj.view.eqimmain.StaticQueryWin' ,{
                     xtype:'datefield',
                     width:120,
                     itemId:'bgday',
+                    format:'Y-m-d',
                     value: Ext.Date.add(new Date(), Ext.Date.DAY,(0-localStorage.staticdays)),
 
                     name: 'bgday'
-                },{
+                },
+                {
+                    xtype:'timefield',
+                    itemId:"bgdaytime",
+                    width:120,
+                    format:'H:i',
+                    increment:60,
+                    value: localStorage.staticautobeginhour,
+                    name: 'bgdaytime'
+                },
+                {
                     xtype:'datefield',
                     itemId:'edday',
+                    format:'Y-m-d',
                     width:120,
                     value:new Date(),
-
                     name: 'edday'
-                },{
+                },
+                {
+                    xtype:'timefield',
+                    itemId:"eddaytime",
+                    width:120,
+                    format:'H:i',
+                    increment:60,
+                    //value: 12,
+                    value: localStorage.staticautoendhour,
+                    name: 'eddaytime'
+                },
+                {
                     xtype:'button',
                     text:'搜索',
                     action:'querystatic'
@@ -47,6 +69,7 @@ Ext.define('EqimPrj.view.eqimmain.StaticQueryWin' ,{
 
             ],
             buttons: [
+
                 {
                     text: '取消',
                     handler: function () {

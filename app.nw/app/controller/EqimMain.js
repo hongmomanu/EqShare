@@ -202,6 +202,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             "staticautocheckhour":localStorage.staticautocheckhour,
             "staticautoendhour":localStorage.staticautoendhour,
             "staticautobeginhour":localStorage.staticautobeginhour,
+            "jopenweblocation":localStorage.jopenweblocation,
             "jopenwebsiteurl":localStorage.jopenwebsiteurl
             });
     },
@@ -488,13 +489,22 @@ Ext.define('EqimPrj.controller.EqimMain', {
     querystaticfunc:function(btn){
         var panel=btn.up('panel');
         var me=this;
+        console.log(Ext.Date.format(panel.down('#bgday').getValue(),'Y-m-d'));
         //var store=panel.getStore();
-        var bgday=panel.down('#bgday').getValue();
-        var edday=panel.down('#edday').getValue();
+        var bgday=Ext.Date.format(panel.down('#bgday').getValue(),'Y-m-d')+" "+Ext.Date.format(panel.down('#bgdaytime').getValue(),'H:i');
+        var edday=Ext.Date.format(panel.down('#edday').getValue(),'Y-m-d')+" "+Ext.Date.format(panel.down('#eddaytime').getValue(),'H:i');
+        console.log(bgday);
+        console.log(edday);
 
         var starttime=new Date(bgday);
         var edtime=new Date(edday);
+        var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"请等候..."});
+        myMask.show();
+        var erroback=function(){
+            myMask.hide();
+        };
         var callback=function(data){
+            myMask.hide();
             var manupiedata=me.updatepies(data,0);
             //var manudata=me.updatepies(me.mldata);
             var ab0=0;
@@ -522,7 +532,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             me.makelog(str,"震级统计:");
             Ext.StoreMgr.get('eqimmain.EarthQuickStaticPieCharts').loadData(manupiedata);
         }
-        this.getJopenajax(starttime,edtime,callback)
+        this.getJopenajax(starttime,edtime,false,callback,erroback)
     },
     savestaticconfig:function(btn){
         var form =btn.up('window').down('form');
@@ -532,6 +542,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         localStorage.staticautocheckhour=form.getValues().staticautocheckhour;
         localStorage.staticautoendhour=form.getValues().staticautoendhour;
         localStorage.staticautobeginhour=form.getValues().staticautobeginhour;
+        localStorage.jopenweblocation=form.getValues().jopenweblocation;
         localStorage.isautostatic=form.getValues().isautostatic;
 
         Ext.Msg.alert("提示信息","保存成功!");
@@ -1182,7 +1193,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
     },
 
-    getJopenajax:function(starttime,endtime,callback){
+    getJopenajax:function(starttime,endtime,allday,callback,erroback){
         var time=endtime;
         var year=time.getFullYear();
         var startMonth=starttime.getMonth()+1;
@@ -1192,6 +1203,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         var startHour=starttime.getHours();
         startHour=startHour<10?("0"+startHour):startHour;
+        if(allday)startHour="00";
 
         var stopMonth=time.getMonth()+1;
         stopMonth=stopMonth<10?("0"+stopMonth):stopMonth;
@@ -1199,8 +1211,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var stopDay=time.getDate();
         stopDay=stopDay<10?("0"+stopDay):stopDay;
 
-        var stopHour=time.getHours()+1;
+        var stopHour=time.getHours();//+1;
         stopHour=stopHour<10?("0"+stopHour):stopHour;
+        if(allday)stopHour="24";
 
         var url='log/loggetjopensdata';
 
@@ -1233,12 +1246,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
         };
         var failFunc = function (form, action) {
             Ext.Msg.alert("提示信息","获取服务失败,请查看服务是否异常!");
+            if(erroback)erroback();
         };
 
         var item={
             url:localStorage.jopenwebsiteurl,
             startYear:year,
             startMonth:startMonth,
+            location :localStorage.jopenweblocation,
             startDay:startDay,
             startHour:startHour,
             stopMonth:stopMonth,
@@ -1261,7 +1276,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                if(me.isjopenSwebInited)starttime=me.mdata.length==0?new Date():(me.mdata[me.mdata.length-1][0]);
                else starttime=Ext.Date.add(time,Ext.Date.DAY,(0-localStorage.staticdays));
 
-                me.getJopenajax(starttime,time,callback)
+                me.getJopenajax(starttime,time,false,callback)
 
             },
             interval:60000
@@ -1531,9 +1546,13 @@ Ext.define('EqimPrj.controller.EqimMain', {
         this.plotcolumn.draw();
     },
     staticcheckdetail:function(){
+        console.log(22222222222222222);
         var me=this;
         var starttime=new Date(localStorage.staticautobeginday+" "+localStorage.staticautobeginhour);
         var endtime=new Date(Ext.Date.format(new Date(),'Y-m-d')+" "+localStorage.staticautoendhour);
+
+        var starttimeday=Ext.Date.format(Ext.Date.add(new Date(), Ext.Date.DAY, -1),'Y-m-d');
+        var endtimeday=starttimeday;
 
         var callback=function(data){
             var manupiedata=me.updatepies(data,0);
@@ -1543,6 +1562,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             var ab3=0;
             var ab4=0;
             for(var i=0;i<manupiedata.length;i++){
+
                 var name=manupiedata[i].name.replace("<","").replace(">","").substring(0,1);
                 if(name>=0){
                     ab0+=manupiedata[i].data;
@@ -1556,17 +1576,27 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
             }
-            var str="统计开始日期:"+Ext.Date.format(starttime,'Y-m-d H:i:s')+",统计结束时间:"
+            var maxobj=[0,0];
+            for(var i=0;i<data.length;i++){
+                if(data[i][1]>maxobj[1]){
+                    maxobj=data[i];
+                }
+            }
+            var str="统计开始日期:"+Ext.Date.format(starttime,'Y-m-d H:i:s')+"<br>统计结束时间:"
                 +Ext.Date.format(endtime,'Y-m-d H:i:s') +"<br>"
                 +"M0级以上（个）:"+ab0+"<br>"
                 +"M3级以上（个）:"+ab3+"<br>"
                 +"M4级以上（个）:"+ab4+"<br>"
+                +"最大震级时刻:"+Ext.Date.format(new Date(maxobj[0]),'Y-m-d H:i:s')+"<br>"
+                +"最大震级:<b>"+maxobj[1].toFixed(1)+"<b>级<br>"
+
             me.makelog(str,"震级统计:");
             //var manudata=me.updatepies(me.mldata);
             //Ext.StoreMgr.get('eqimmain.EarthQuickStaticPieCharts').loadData(manupiedata);
         };
 
-        me.getJopenajax(starttime,endtime,callback);
+        me.getJopenajax(starttime,endtime,false,callback);
+        me.getJopenajax(starttimeday,endtimeday,true,callback);
 
 
     },
@@ -1577,12 +1607,13 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         var checkdutytask={
             run: function(){
-                //console.log(111);
+                console.log(11122222222222222);
                 if((new Date()).getDay()!=me.checkday){
                     me.isstaticchecked=false;
                     me.checkday=(new Date()).getDay();
                 }
                 if((!me.isstaticchecked)&&(parseInt(localStorage.staticautocheckhour.split(":")[0])<=(new Date()).getHours())){
+
                     me.staticcheckdetail();
                 }
 
@@ -1599,6 +1630,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!localStorage.staticdays)localStorage.staticdays=2;
         if(!localStorage.staticautobeginday)localStorage.staticautobeginday=Ext.Date.format(Ext.Date.add(new Date(), Ext.Date.DAY, -30),'Y-m-d');
         if(!localStorage.staticautobeginhour)localStorage.staticautobeginhour="12:00";
+        if(!localStorage.jopenweblocation)localStorage.jopenweblocation="浙江";
         if(!localStorage.staticautoendhour)localStorage.staticautoendhour="08:00";
         if(!localStorage.staticautocheckhour)localStorage.staticautocheckhour="10:00";
         if(!localStorage.isautostatic)localStorage.isautostatic=true;

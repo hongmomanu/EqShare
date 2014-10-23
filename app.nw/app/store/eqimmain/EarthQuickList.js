@@ -45,6 +45,6 @@ Ext.define('EqimPrj.store.eqimmain.EarthQuickList', {
          }*/
 
     ]
-    , sorters: { property: 'time', direction : 'DESC' }
+    , sorters: { property: 'stime', direction : 'DESC' }
 });
 

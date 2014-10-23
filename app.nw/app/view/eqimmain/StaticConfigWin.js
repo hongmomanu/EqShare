@@ -56,6 +56,14 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
                             },
                             {
                                 xtype: 'textfield',
+                                fieldLabel: '统计地区',
+                                required:true,
+                                allowBlank:false,
+                                afterLabelTextTpl: required,
+                                name: 'jopenweblocation'
+                            },
+                            {
+                                xtype: 'textfield',
                                 fieldLabel: '统计天数',
                                 required:true,
                                 allowBlank:false,
@@ -102,6 +110,7 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
 
                                 name: 'staticautocheckhour'
                             },
+
                             {
                                 xtype:'checkbox',
                                 checked: false,
