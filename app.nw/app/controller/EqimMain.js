@@ -545,6 +545,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
         localStorage.jopenweblocation=form.getValues().jopenweblocation;
         localStorage.isautostatic=form.getValues().isautostatic;
 
+        this.updatecolumchart();
+
         Ext.Msg.alert("提示信息","保存成功!");
 
 
