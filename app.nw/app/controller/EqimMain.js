@@ -1148,7 +1148,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
                        var autopiedata=me.updatepies(me.mldata,1);
                        Ext.StoreMgr.get('eqimmain.EarthQuickAutoPieCharts').loadData(autopiedata);
-                       if(localStorage.isautostatic==1)me.updatecolumchart();
+                       me.updatecolumchart();
                    }
                    //chart_store.add({"stime":new Date(data.time),"M1":data.M});
 
@@ -1447,14 +1447,21 @@ Ext.define('EqimPrj.controller.EqimMain', {
                             timezone: "browser"
                         }
                     });
+                    var depthdata=[];
+                    for(var i=0;i<me.mdata.length;i++){
+                        var arr=[me.mdata[i][0],me.mdata[i][5]];
+                        depthdata.push(arr);
+                    }
+
                     me.plotcolumnoverview= $.plot("#earthquickcolumnchartoverview", [
-                        { data: me.mdata, color: 'green' },{ data: me.mldata} ], {
+
+                        { data: depthdata, color: 'green' }], {
                         series: {
-                            //bars: {show: true},
-                            lines: {
-                                show: true/**,
-                                 lineWidth: 1**/
-                            },
+                            bars: {show: true},
+                            /*lines: {
+                                show: true*//**,
+                                 lineWidth: 1**//*
+                            },*/
                             shadowSize: 0
                         },
                         xaxis: {
@@ -1475,7 +1482,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                         }
                     });
 
-                    $("#earthquickcolumnchart").bind("plotselected", function (event, ranges) {
+                    /*$("#earthquickcolumnchart").bind("plotselected", function (event, ranges) {
 
                         // do the zooming
                         $.each(me.plotcolumn.getXAxes(), function(_, axis) {
@@ -1495,7 +1502,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                     $("#earthquickcolumnchartoverview").bind("plotselected", function (event, ranges) {
                         me.plotcolumn.setSelection(ranges);
                     });
-
+*/
 
                     $("<div id='columntooltip'></div>").css({
                         position: "absolute",
@@ -1536,9 +1543,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
     },
     updatecolumchart:function(){
-        this.plotcolumnoverview.setData([{data:this.mdata,color: 'green'},{ data: this.mldata }]);
+        var depthdata=[];
+        for(var i=0;i<this.mdata.length;i++){
+            var arr=[this.mdata[i][0],this.mdata[i][5]];
+            depthdata.push(arr);
+        }
+        this.plotcolumnoverview.setData([{data:depthdata,color: 'green'}]);
         this.plotcolumn.setData([{ label: "JOPENSWeb", data: this.mdata, color: 'green' },
-            { data: this.mldata, label: "自动速报" }]);
+            { data: (localStorage.isautostatic==1)?this.mldata:[], label: "自动速报" }]);
         // Since the axes don't change, we don't need to call plot.setupGrid()
         this.plotcolumn.setupGrid();
         this.plotcolumnoverview.setupGrid();
@@ -1633,7 +1645,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!localStorage.jopenweblocation)localStorage.jopenweblocation="浙江";
         if(!localStorage.staticautoendhour)localStorage.staticautoendhour="08:00";
         if(!localStorage.staticautocheckhour)localStorage.staticautocheckhour="10:00";
-        if(!localStorage.isautostatic)localStorage.isautostatic=true;
+        if(!localStorage.isautostatic)localStorage.isautostatic=1;
         if(!localStorage.weibousername)localStorage.weibousername='liaolongshiwo@163.com';
         if(!localStorage.weibopassword)localStorage.weibopassword='long090909';
         if(!localStorage.groupsvalue)localStorage.groupsvalue='["99999A","99999B","应急通讯试机","全局会议","自动速报AU"]';

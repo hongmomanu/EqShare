@@ -43,12 +43,24 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgAutoWin' ,{
                         allowBlank:false,
                         disabled:true,
                         afterLabelTextTpl: required,
-                        fieldLabel: '发送内容'
+                        fieldLabel: '发送标题'
                     },{
                         xtype: 'textarea',
                         name: 'content',
                         itemId:'content',
                         required:true,
+                        listeners: {
+                            change:function(obj,v){
+                                var win=obj.up('window');
+                                var arr=v.split("（")[0].split(":");
+                                var data=win.data;
+                                var str=arr[arr.length-1] +"发生"+data.M.toFixed(1)+"级左右地震。";
+                                var title=win.down('#title');
+
+                                //var titlecontent=Ext.Date.format(new Date(data.time),'m月d日H时i分')+data.location+"发生"+data.M.toFixed(1)+"级左右地震。";
+                                title.setValue(str);
+                            }
+                        },
                         allowBlank:false,
                         afterLabelTextTpl: required,
                         fieldLabel: '发送内容'
