@@ -1459,7 +1459,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
                         { data: depthdata, color: 'green' }], {
                         series: {
-                            bars: {show: true},
+                            /*bars: {show: true},*/
+                            points: { show: true },
                             /*lines: {
                                 show: true*//**,
                                  lineWidth: 1**//*
@@ -1471,6 +1472,11 @@ Ext.define('EqimPrj.controller.EqimMain', {
                             show:false,
                             mode: "time",
                             timezone: "browser"
+                        },
+                        grid: {
+                            hoverable: true,
+                            markings: weekendAreas,
+                            clickable: true
                         },
 
                         yaxis: {
@@ -1523,6 +1529,20 @@ Ext.define('EqimPrj.controller.EqimMain', {
                                 y = item.datapoint[1];
 
                             $("#columntooltip").html("时间:" + Ext.Date.format(new Date(x),'Y-m-d H:i:s') + " <br>震级: " + (y-1).toFixed(1))
+                                .css({top: item.pageY+5, left: item.pageX+5})
+                                .fadeIn(200);
+                        } else {
+                            $("#columntooltip").hide();
+                        }
+                    });
+                    $("#earthquickcolumnchartoverview").bind("plothover", function (event, pos, item) {
+                        //console.log(item);
+                        if (item) {
+                            //console.log(item);
+                            var x = item.datapoint[0],
+                                y = item.datapoint[1];
+
+                            $("#columntooltip").html("时间:" + Ext.Date.format(new Date(x),'Y-m-d H:i:s') + " <br>深度: " + y.toFixed(1))
                                 .css({top: item.pageY+5, left: item.pageX+5})
                                 .fadeIn(200);
                         } else {
