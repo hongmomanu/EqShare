@@ -30,7 +30,8 @@ Ext.define('EqimPrj.view.eqimmain.SendMsgConfigGrid', {
 
                 {header: '是否启用',   dataIndex: 'id',hidden:true},
                 {header: '来源',dataIndex: 'source',width:60},
-                {header: '震中地区',dataIndex: 'epicenter',width:120},
+                {header: '震中地区',dataIndex: 'epicenter',width:80},
+                {header: '经纬度范围',dataIndex: 'bbox',width:80},
                 {header: '条件',dataIndex: 'compare',width:60},
                 {header: '条件值',dataIndex: 'comparedata',width:60},
                 {header: '发送方式',dataIndex: 'sendmethod',renderer : function(v,m,r) {

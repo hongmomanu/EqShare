@@ -15,7 +15,7 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
         var required = '<span style="color:red;font-weight:bold" data-qtip="必填字段">*</span>';
         Ext.apply(this, {
             title: '统计配置',
-            height: 350,
+            height: 370,
             width: 720,
             closeAction : 'hide',
             modal:true,
@@ -61,6 +61,14 @@ Ext.define('EqimPrj.view.eqimmain.StaticConfigWin' ,{
                                 allowBlank:false,
                                 afterLabelTextTpl: required,
                                 name: 'jopenweblocation'
+                            },
+                            {
+                                xtype: 'textfield',
+                                fieldLabel: '经纬度范围',
+                                required:true,
+                                allowBlank:false,
+                                afterLabelTextTpl: required,
+                                name: 'jopenwebbbox'
                             },
                             {
                                 xtype: 'textfield',

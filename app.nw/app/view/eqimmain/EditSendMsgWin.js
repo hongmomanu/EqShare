@@ -77,6 +77,13 @@ Ext.define('EqimPrj.view.eqimmain.EditSendMsgWin' ,{
                         allowBlank:false,
                         afterLabelTextTpl: required,*/
                         fieldLabel: '震中地区'
+                    },{
+                        xtype: 'textfield',
+                        name: 'bbox',
+                        /*required:true,
+                        allowBlank:false,
+                        afterLabelTextTpl: required,*/
+                        fieldLabel: '经纬度范围'
                     },
                     {
                         xtype: 'combobox',

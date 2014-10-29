@@ -21,6 +21,10 @@ Ext.define('EqimPrj.model.eqimmain.SendMsgConfig', {
             type:'string'
         },
         {
+            name: 'bbox',
+            type:'string'
+        },
+        {
             name: 'compare',
             type:'string'
         },

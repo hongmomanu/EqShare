@@ -203,6 +203,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
             "staticautoendhour":localStorage.staticautoendhour,
             "staticautobeginhour":localStorage.staticautobeginhour,
             "jopenweblocation":localStorage.jopenweblocation,
+            "jopenwebbbox":localStorage.jopenwebbbox,
             "jopenwebsiteurl":localStorage.jopenwebsiteurl
             });
     },
@@ -489,12 +490,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
     querystaticfunc:function(btn){
         var panel=btn.up('panel');
         var me=this;
-        console.log(Ext.Date.format(panel.down('#bgday').getValue(),'Y-m-d'));
         //var store=panel.getStore();
         var bgday=Ext.Date.format(panel.down('#bgday').getValue(),'Y-m-d')+" "+Ext.Date.format(panel.down('#bgdaytime').getValue(),'H:i');
         var edday=Ext.Date.format(panel.down('#edday').getValue(),'Y-m-d')+" "+Ext.Date.format(panel.down('#eddaytime').getValue(),'H:i');
-        console.log(bgday);
-        console.log(edday);
 
         var starttime=new Date(bgday);
         var edtime=new Date(edday);
@@ -543,6 +541,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         localStorage.staticautoendhour=form.getValues().staticautoendhour;
         localStorage.staticautobeginhour=form.getValues().staticautobeginhour;
         localStorage.jopenweblocation=form.getValues().jopenweblocation;
+        localStorage.jopenwebbbox=form.getValues().jopenwebbbox;
         localStorage.isautostatic=form.getValues().isautostatic;
 
         this.updatecolumchart();
@@ -662,6 +661,15 @@ Ext.define('EqimPrj.controller.EqimMain', {
         }
 
        return  iscontain;
+    },
+    isbboxin:function(lon,lat,bbox){
+        if(!bbox||bbox.replace(/\s+/g,"")==""){
+            return true;
+        }
+        var iscontain=false;
+        var box=eval(bbox);
+        if(lon>=box[0]&&lon<=box[1]&&lat>=box[2]&&lat<=box[3])iscontain=true;
+        return  iscontain;
     },
     getFormatTemp:function(){
        var template='{0}:{1}月{2}日{3}时{4}分{5}附近（{6}度，{7}度）发生{8}级左右地震，最终结果以正式速报为准。' ;
@@ -923,7 +931,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         for(var i=0;i<filterdata.length;i++){
             if(data.code==filterdata[i].source&&
                 eval(data.M+filterdata[i].compare+filterdata[i].comparedata)
-                && this.isplacein(data.location, filterdata[i].epicenter)
+                && this.isplacein(data.location, filterdata[i].epicenter)&&this.isbboxin(data.lon,data.lat,filterdata[i].bbox)
                 ){
                  if(filterdata[i].sendmethod.indexOf(0)>=0){
                      this.sendTel(data,"自动测定",filterdata[i].groups);
@@ -1226,6 +1234,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
             //testhtml=html;
             var finder=html.find('table[border$=1]').find('tr');
             if(finder.length>2){
+                //alert(1);
+                //console.log(finder);
                 var data=[];
                 for(var i=2;i<finder.length;i++){
                     var finderobj=$(finder[i]).find("i");
@@ -1243,6 +1253,8 @@ Ext.define('EqimPrj.controller.EqimMain', {
                 }
                 callback(data);
 
+            }else{
+                callback([]);
             }
 
         };
@@ -1250,12 +1262,16 @@ Ext.define('EqimPrj.controller.EqimMain', {
             Ext.Msg.alert("提示信息","获取服务失败,请查看服务是否异常!");
             if(erroback)erroback();
         };
-
+        var bbox=eval(localStorage.jopenwebbbox);
         var item={
             url:localStorage.jopenwebsiteurl,
             startYear:year,
             startMonth:startMonth,
             location :localStorage.jopenweblocation,
+            lonmin:bbox[0],
+            lonmax:bbox[1],
+            latmin:bbox[2],
+            latmax:bbox[3],
             startDay:startDay,
             startHour:startHour,
             stopMonth:stopMonth,
@@ -1376,7 +1392,6 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
             return markings;
         }
-        console.log(me.mdata);
         function labelFormatter(v, axis) {
 
             return (v-1).toFixed(1);
@@ -1384,9 +1399,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
 
         var callback=function(data){
-            me.isjopenSwebInited=true;
-            data=me.filtermanueldata(data);
+            console.log(data);
             if(data.length>0){
+                me.isjopenSwebInited=true;
+                data=me.filtermanueldata(data);
                 for(var i=0;i<data.length;i++){
                     var item={
                         time:Ext.Date.format(new Date(data[i][0]),'Y-m-d H:i:s'),
@@ -1565,19 +1581,24 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
     },
     updatecolumchart:function(){
-        var depthdata=[];
-        for(var i=0;i<this.mdata.length;i++){
-            var arr=[this.mdata[i][0],this.mdata[i][5]];
-            depthdata.push(arr);
+
+        if(this.plotcolumnoverview){
+            var depthdata=[];
+            for(var i=0;i<this.mdata.length;i++){
+                var arr=[this.mdata[i][0],this.mdata[i][5]];
+                depthdata.push(arr);
+            }
+
+            this.plotcolumnoverview.setData([{data:depthdata,color: 'green'}]);
+            this.plotcolumn.setData([{ label: "JOPENSWeb", data: this.mdata, color: 'green' },
+                { data: (localStorage.isautostatic==1)?this.mldata:[], label: "自动速报" }]);
+            // Since the axes don't change, we don't need to call plot.setupGrid()
+            this.plotcolumn.setupGrid();
+            this.plotcolumnoverview.setupGrid();
+            this.plotcolumnoverview.draw();
+            this.plotcolumn.draw();
         }
-        this.plotcolumnoverview.setData([{data:depthdata,color: 'green'}]);
-        this.plotcolumn.setData([{ label: "JOPENSWeb", data: this.mdata, color: 'green' },
-            { data: (localStorage.isautostatic==1)?this.mldata:[], label: "自动速报" }]);
-        // Since the axes don't change, we don't need to call plot.setupGrid()
-        this.plotcolumn.setupGrid();
-        this.plotcolumnoverview.setupGrid();
-        this.plotcolumnoverview.draw();
-        this.plotcolumn.draw();
+
     },
     staticcheckdetail:function(){
         var me=this;
@@ -1665,6 +1686,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         if(!localStorage.staticautobeginday)localStorage.staticautobeginday=Ext.Date.format(Ext.Date.add(new Date(), Ext.Date.DAY, -30),'Y-m-d');
         if(!localStorage.staticautobeginhour)localStorage.staticautobeginhour="12:00";
         if(!localStorage.jopenweblocation)localStorage.jopenweblocation="浙江";
+        if(!localStorage.jopenwebbbox)localStorage.jopenwebbbox="[-180,180,-90,90]";
         if(!localStorage.staticautoendhour)localStorage.staticautoendhour="08:00";
         if(!localStorage.staticautocheckhour)localStorage.staticautocheckhour="10:00";
         if(!localStorage.isautostatic)localStorage.isautostatic=1;
