@@ -20,6 +20,11 @@ Ext.define('EqimPrj.view.eqimmain.EarthQuickManuelPieChart', {
                 type: 'pie',
                 field: 'data',
                 showInLegend: true,
+                listeners:{
+                    itemmousedown : function(obj) {
+                        me.fireEvent('onpieclickfunc', obj.storeItem.data,this)
+                    }
+                },
                 //donut: false,
                 tips: {
                     trackMouse: true,

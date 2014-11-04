@@ -153,6 +153,9 @@ Ext.define('EqimPrj.controller.EqimMain', {
             'manualsendmsgautowin combobox':{
                onselectfunc:this.selectfunc
             },
+            'earthquickmanuelpiechart':{
+                onpieclickfunc:this.onpieclickfunc
+            },
             'mainpanel menuitem[action=refresh]':{
                 click: this.refreshwin
             },
@@ -954,6 +957,10 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     showMaplocation:function(data){
         //alert(1);
+        for(var i=0;i<this.earthpopmarkers.length;i++){
+            this.map.removeLayer(this.earthpopmarkers[i]);
+
+        }
         this.map.panTo(new L.LatLng(data.lat,data.lon));
         if(this.popupmarker)this.map.removeLayer(this.popupmarker);
         var marker=L.marker([data.lat,data.lon]).addTo(this.map)
@@ -1086,6 +1093,39 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
             }
         });
+    },
+    earthpopmarkers:[],
+    onpieclickfunc:function(data,obj){
+        //alert(1);
+        //console.log(data);
+        var clickdata=this.filterbylevel(data.name,this.mdata,1);
+        this.hdata=clickdata;
+        this.updatecolumchart();
+        if(this.popupmarker)this.map.removeLayer(this.popupmarker);
+        for(var i=0;i<this.earthpopmarkers.length;i++){
+            this.map.removeLayer(this.earthpopmarkers[i]);
+
+        }
+        this.earthpopmarkers=[];
+
+        for(var i=0;i<clickdata.length;i++){
+            var marker=L.marker([clickdata[i][4],clickdata[i][3]]).addTo(this.map)
+                .bindPopup("<ul><li>发震时刻:"+Ext.Date.format(new Date(clickdata[i][0]),'Y-m-d H:i:s')+"</li><li>地名:"
+                    +clickdata[i][2]+"</li><li>震级:M"+ clickdata[i][1]+
+                    "</li><li>深度:"+clickdata[i][5]+"km</li></ul>");
+            this.earthpopmarkers.push(marker);
+            if(i==clickdata.length-1)this.map.panTo(new L.LatLng(clickdata[i][4],clickdata[i][3]));
+
+        }
+
+        this.hdata=[];
+
+        [new Date(date),m,location,lon,lat,depth]
+
+
+        //console.log(clickdata);
+
+
     },
     selectfunc:function(rec,comb){
         //alert(1);
@@ -1306,6 +1346,33 @@ Ext.define('EqimPrj.controller.EqimMain', {
     },
     mldata:[],
     mdata:[],
+    hdata:[],
+    filterbylevel:function(leverstr,data,step){
+        var flag=true;
+        var arr=[]
+        for(var i=0;i<data.length;i++){
+            var temp=data[i][1]-step;
+            if(leverstr=="0-1级"){
+                if(temp>=0&&temp<1)arr.push(data[i]);
+            }else if(leverstr=="1-2级"){
+                if(temp>=1&&temp<2)arr.push(data[i]);
+            }else if(leverstr=="2-3级"){
+                if(temp>=2&&temp<3)arr.push(data[i]);
+            }else if(leverstr=="3-4级"){
+                if(temp>=3&&temp<4)arr.push(data[i]);
+            }else if(leverstr=="4-5级"){
+                if(temp>=4&&temp<5)arr.push(data[i]);
+            }else if(leverstr=="5-6级"){
+                if(temp>=5&&temp<6)arr.push(data[i]);
+            }else if(leverstr=="6-7级"){
+                if(temp>=6&&temp<7)arr.push(data[i]);
+            }else{
+                if(temp>=7)arr.push(data[i]);
+            }
+        }
+        return arr;
+
+    },
     updatepies:function(data,step){
 
        var itemauto={"<0级":0,"0-1级":0,"1-2级":0,"2-3级":0,"3-4级":0,
@@ -1587,14 +1654,21 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         if(this.plotcolumnoverview){
             var depthdata=[];
+            var depthdatah=[];
             for(var i=0;i<this.mdata.length;i++){
                 var arr=[this.mdata[i][0],this.mdata[i][5]];
                 depthdata.push(arr);
             }
+            for(var i=0;i<this.hdata.length;i++){
+                var arr=[this.hdata[i][0],this.hdata[i][5]];
+                depthdatah.push(arr);
+            }
 
-            this.plotcolumnoverview.setData([{data:depthdata,color: 'green'}]);
+
+            this.plotcolumnoverview.setData([{data:depthdata,color: 'green'},{data:depthdatah,color: 'red'}]);
             this.plotcolumn.setData([{ label: "JOPENSWeb", data: this.mdata, color: 'green' },
-                { data: (localStorage.isautostatic==1)?this.mldata:[], label: "自动速报" }]);
+                { data: (localStorage.isautostatic==1)?this.mldata:[], label: "自动速报" },
+                {data:this.hdata,color: 'red'}]);
             // Since the axes don't change, we don't need to call plot.setupGrid()
             this.plotcolumn.setupGrid();
             this.plotcolumnoverview.setupGrid();
