@@ -1088,11 +1088,14 @@ Ext.define('EqimPrj.controller.EqimMain', {
         });
     },
     selectfunc:function(rec,comb){
+        //alert(1);
+
         var win=comb.up('window');
         //console.log(rec.getValue());
-
        if(!localStorage[rec.getValue()])localStorage[rec.getValue()]=localStorage.defaulttemplatevalue;
-       rec.up('window').down('#content').setValue(this.contentFormatCustom(win.data,"自动测定",localStorage[rec.getValue()]));
+        var titlecontent=Ext.Date.format(new Date(win.data.time),'m月d日H时i分')+win.data.location+"发生"+win.data.M.toFixed(1)+"级地震。";
+        rec.up('window').down('#content').setValue(this.contentFormatCustom(win.data,"自动测定",localStorage[rec.getValue()]));
+        rec.up('window').down('#title').setValue(titlecontent);
 
 
     },
