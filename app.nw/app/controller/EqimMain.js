@@ -1120,9 +1120,6 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         this.hdata=[];
 
-        [new Date(date),m,location,lon,lat,depth]
-
-
         //console.log(clickdata);
 
 
