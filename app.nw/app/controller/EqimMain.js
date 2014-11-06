@@ -1107,9 +1107,16 @@ Ext.define('EqimPrj.controller.EqimMain', {
 
         }
         this.earthpopmarkers=[];
-
+        var url=localStorage.serverurl;
+        var LeafIcon = L.Icon.extend({
+            /*options: {
+                shadowUrl:(url+"images/shadow.jpg"),
+                popupAnchor:  [8, 0]
+            }*/
+        });
+        var circleIcon = new LeafIcon({iconUrl: url+"images/circle.jpg"});
         for(var i=0;i<clickdata.length;i++){
-            var marker=L.marker([clickdata[i][4],clickdata[i][3]]).addTo(this.map)
+            var marker=L.marker([clickdata[i][4],clickdata[i][3]],{icon: circleIcon}).addTo(this.map)
                 .bindPopup("<ul><li>发震时刻:"+Ext.Date.format(new Date(clickdata[i][0]),'Y-m-d H:i:s')+"</li><li>地名:"
                     +clickdata[i][2]+"</li><li>震级:M"+ clickdata[i][1]+
                     "</li><li>深度:"+clickdata[i][5]+"km</li></ul>");
