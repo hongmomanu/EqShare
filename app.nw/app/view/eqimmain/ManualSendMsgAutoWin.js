@@ -55,7 +55,7 @@ Ext.define('EqimPrj.view.eqimmain.ManualSendMsgAutoWin' ,{
                                 ischar= v.indexOf("(");
                                 var arr=ischar>0?v.split("(")[0].split(":"):v.split("（")[0].split(":");
                                 var data=win.data;
-                                var str=arr[arr.length-1] +"发生"+data.M.toFixed(1)+"级左右地震。";
+                                var str=arr[arr.length-1] +"发生"+data.M.toFixed(1)+"级地震。"; //左右
                                 var title=win.down('#title');
 
                                 //var titlecontent=Ext.Date.format(new Date(data.time),'m月d日H时i分')+data.location+"发生"+data.M.toFixed(1)+"级左右地震。";
