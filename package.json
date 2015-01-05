@@ -1,23 +1,23 @@
 {
-  "name": "EqimPrj",
+  "name": "EqShare",
   "description": "The best project ever.",
   "version": "0.1.0",
-  "homepage": "https://github.com/hongmomanu/EqimPrj",
+  "homepage": "https://github.com/hongmomanu/EqShare",
   "author": {
     "name": "hongmomanu",
     "email": "hongmomanu@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/hongmomanu/EqimPrj.git"
+    "url": "git://github.com/hongmomanu/EqShare.git"
   },
   "bugs": {
-    "url": "https://github.com/hongmomanu/EqimPrj/issues"
+    "url": "https://github.com/hongmomanu/EqShare/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/hongmomanu/EqimPrj/blob/master/LICENSE-MIT"
+      "url": "https://github.com/hongmomanu/EqShare/blob/master/LICENSE-MIT"
     }
   ],
   "main": "index.html",

@@ -20,7 +20,6 @@
       "url": "https://github.com/hongmomanu/EqShare/blob/master/LICENSE-MIT"
     }
   ],
-
   "main": "index.html",
   "engines": {
     "node": ">= 0.8.0"
@@ -28,7 +27,7 @@
     "window": {
         "title": "地震信息分发平台",
         "icon": "share.png",
-        "toolbar": true,
+        "toolbar": false,
         "position": "mouse"
 
     },

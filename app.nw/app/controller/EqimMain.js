@@ -754,10 +754,17 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var successFunc = function (form, action) {
             if(callback)callback();
             Ext.Msg.alert("提示信息","短信发送成功");
+            setTimeout(function(){
+                Ext.MessageBox.hide();
+            }, 000);
         };
         var failFunc = function (form, action) {
             if(callback)callback();
             Ext.Msg.alert("提示信息","短信发送失败");
+            setTimeout(function(){
+                Ext.MessageBox.hide();
+
+            }, 3000);
         };
 
         var item={};
@@ -819,10 +826,18 @@ Ext.define('EqimPrj.controller.EqimMain', {
             var successFunc = function (form, action) {
                 if(callback)callback();
                 Ext.Msg.alert("提示信息","网页发布成功");
+                setTimeout(function(){
+                    Ext.MessageBox.hide();
+
+                }, 3000);
             };
             var failFunc = function (form, action) {
                 if(callback)callback();
                 Ext.Msg.alert("提示信息","网页发布失败");
+                setTimeout(function(){
+                    Ext.MessageBox.hide();
+
+                }, 3000);
             };
             var item={};
             item.url=localStorage.websiteurl;
@@ -902,10 +917,17 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var successFunc = function (form, action) {
             if(callback)callback();
             Ext.Msg.alert("提示信息","微博发布成功");
+            setTimeout(function(){
+                Ext.MessageBox.hide();
+            }, 3000);
         };
         var failFunc = function (form, action) {
             if(callback)callback();
             Ext.Msg.alert("提示信息","微博发布失败,太频繁");
+            setTimeout(function(){
+                Ext.MessageBox.hide();
+
+            }, 3000);
         };
 
         var item={};
@@ -1261,6 +1283,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
     getJopenajax:function(starttime,endtime,allday,callback,erroback){
         var time=endtime;
         var year=time.getFullYear();
+        var startyear=starttime.getFullYear();
         var startMonth=starttime.getMonth()+1;
         startMonth=startMonth<10?("0"+startMonth):startMonth;
         var startDay=starttime.getDate();
@@ -1320,7 +1343,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var bbox=eval(localStorage.jopenwebbbox);
         var item={
             url:localStorage.jopenwebsiteurl,
-            startYear:year,
+            startYear:startyear,
             startMonth:startMonth,
             location :localStorage.jopenweblocation,
             lonmin:bbox[0],
