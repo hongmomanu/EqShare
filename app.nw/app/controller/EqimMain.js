@@ -190,6 +190,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         });
     },
     refreshwin:function(btn){
+        gui.App.clearCache();
       window.location.reload();
     },
     openstaticconfigwin:function(btn){
@@ -688,20 +689,27 @@ Ext.define('EqimPrj.controller.EqimMain', {
         var time=new Date(data.time);
 
         if(data.code=="AU"){
-            code_name="国家地震台网中心"+type ;
+            //code_name="国家地震台网中心"+type ;
+            code_name="国家地震台网中心" ;
         }else if(data.code=="GD"){
-            code_name="国家地震速报备份中心"+type ;
+            //code_name="国家地震速报备份中心"+type ;
+            code_name="国家地震速报备份中心" ;
         }else if(data.code=="FJ"){
-            code_name="东南区域中心"+type ;
+            //code_name="东南区域中心"+type ;
+            code_name="东南区域中心" ;
         }else if(data.code=="ZD"){
-            code_name="浙江定位系统"+type ;
+            //code_name="浙江定位系统"+type ;
+            code_name="浙江定位系统" ;
         }else if(data.code=="ZC"){
-            code_name="浙江测震台网"+type ;
+            //code_name="浙江测震台网"+type ;
+            code_name="浙江测震台网" ;
         }
         else{
-            code_name=data.code+type ;
+            //code_name=data.code+type ;
+            code_name=data.code ;
         }
         //var template='{0}:{1}月{2}日{3}时{4}分{5}附近（{6}度，{7}度）发生{8}级左右地震，最终结果以正式速报为准。' ;
+        if(!format)format=localStorage.defaulttemplatevalue;
         return Ext.String.format(format,
             code_name,
             (time.getMonth()+1),
@@ -1118,7 +1126,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
         for(var i=0;i<clickdata.length;i++){
             var marker=L.marker([clickdata[i][4],clickdata[i][3]],{icon: circleIcon}).addTo(this.map)
                 .bindPopup("<ul><li>发震时刻:"+Ext.Date.format(new Date(clickdata[i][0]),'Y-m-d H:i:s')+"</li><li>地名:"
-                    +clickdata[i][2]+"</li><li>震级:M"+ clickdata[i][1]+
+                    +clickdata[i][2]+"</li><li>震级:M"+ (clickdata[i][1]-1).toFixed(1)+
                     "</li><li>深度:"+clickdata[i][5]+"km</li></ul>");
             this.earthpopmarkers.push(marker);
             if(i==clickdata.length-1)this.map.panTo(new L.LatLng(clickdata[i][4],clickdata[i][3]));
@@ -1338,7 +1346,7 @@ Ext.define('EqimPrj.controller.EqimMain', {
                //console.log(111);
                var time=new Date();
                 var starttime=null;
-               if(me.isjopenSwebInited)starttime=me.mdata.length==0?new Date():(me.mdata[me.mdata.length-1][0]);
+               if(me.isjopenSwebInited)starttime=me.mdata.length==0?Ext.Date.add(time,Ext.Date.DAY,(0-localStorage.staticdays)):(me.mdata[me.mdata.length-1][0]);
                else starttime=Ext.Date.add(time,Ext.Date.DAY,(0-localStorage.staticdays));
 
                 me.getJopenajax(starttime,time,false,callback)

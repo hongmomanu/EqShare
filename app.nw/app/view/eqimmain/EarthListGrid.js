@@ -11,7 +11,7 @@ Ext.define('EqimPrj.view.eqimmain.EarthListGrid', {
         Ext.apply(me, {
             //title: '数据相关测试',
             border: false,
-            hideHeaders:true,
+            hideHeaders:false,
             multiSelect: true,
             viewConfig: {
                 trackOver: false,
@@ -21,7 +21,31 @@ Ext.define('EqimPrj.view.eqimmain.EarthListGrid', {
             },
 
             columns: [
-                {header: '详细信息',dataIndex: 'location',flex: 1,renderer : function(v,m,r) {
+                {header: '',dataIndex: 'location',flex: 1,
+
+                    items    : {
+                        xtype: 'textfield',
+                        flex : 1,
+                        margin: 2,
+                        enableKeyEvents: true,
+                        listeners: {
+                            keyup: function() {
+                                var store = this.up('tablepanel').store;
+                                store.clearFilter();
+                                if (this.value) {
+                                    store.filter({
+                                        property     : 'code',
+                                        value         : this.value,
+                                        anyMatch      : true,
+                                        caseSensitive : false
+                                    });
+                                }
+                            },
+                            buffer: 500
+                        }
+                    },
+
+                    renderer : function(v,m,r) {
                     //console.log(r);
                     //testobj=r;
                     var str='<ul><li>接收时间:'+r.get('stime')+'</li><a>来源:'+ r.get('cname')
